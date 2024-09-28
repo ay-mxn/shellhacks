@@ -3,6 +3,9 @@
     - title: "Common Phishing Tactics"
       content: "Phishing attempts often use urgency, fear, or curiosity to manipulate victims. Be wary of emails that create a sense of urgency or threaten negative consequences if you don't act immediately."
       challenge: "Name one common tactic used in phishing attempts:"
+      challengeType: phishingAwareness
+      challengeFunc: phishingAwarenessChallenge
+
     - title: "Spotting a Phising Email"
       content: "Always check the contents of the email before entering sensitive information. Phishers often make the body of the email look similar to legitimate sites but with slight differences."
       challenge: "Is the email a phishing scam or legitmate?"
