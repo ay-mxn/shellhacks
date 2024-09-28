@@ -9,6 +9,7 @@ import (
 // Update handles all the application logic and state updates
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
+	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -29,8 +30,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.progress.Width = min(m.windowWidth, maxWidth) - 4
 	}
 
+	if m.state == stateChallenge {
+		var cmd tea.Cmd
+		m.textInput, cmd = m.textInput.Update(msg)
+		cmds = append(cmds, cmd)
+	}
+
 	m.viewport, cmd = m.viewport.Update(msg)
-	cmds := append([]tea.Cmd{cmd}, m.updateTextInput(msg)...)
+	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
 }
@@ -49,6 +56,7 @@ func (m Model) handleEnter() (tea.Model, tea.Cmd) {
 		} else {
 			m.challengeMsg = "Try again."
 		}
+		m.textInput.SetValue("")
 	}
 	return m, nil
 }
@@ -60,6 +68,7 @@ func (m Model) handleRight() (tea.Model, tea.Cmd) {
 			m.state = stateChallenge
 			m.textInput.SetValue("")
 			m.challengeMsg = ""
+			return m, m.focusTextInput
 		} else {
 			m.moveToNextTopic()
 		}
@@ -98,12 +107,9 @@ func (m *Model) moveToNextTopic() {
 	m.updateProgress()
 }
 
-func (m Model) updateTextInput(msg tea.Msg) []tea.Cmd {
-	var cmds []tea.Cmd
-	var cmd tea.Cmd
-	m.textInput, cmd = m.textInput.Update(msg)
-	cmds = append(cmds, cmd)
-	return cmds
+func (m Model) focusTextInput() tea.Msg {
+	m.textInput.Focus()
+	return nil
 }
 
 // Additional helper function to generate ASCII art
