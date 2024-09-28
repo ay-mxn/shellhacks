@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
-	// "io/ioutil"
+	"io/ioutil"
+	"log"
+	"path/filepath"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/progress"
@@ -10,7 +12,7 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	// "gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -34,9 +36,10 @@ type model struct {
 }
 
 type Lesson struct {
-	Title         string  `yaml:"title"`
-	Topics        []Topic `yaml:"topics"`
-	ChallengeFunc func(*model) bool
+    Title         string   `yaml:"title"`
+    Topics        []Topic  `yaml:"topics"`
+    ChallengeFunc func(*model) bool `yaml:"-"`
+    ChallengeType string   // Add this line
 }
 
 type Topic struct {
@@ -83,36 +86,14 @@ func NewStyles() *Styles {
 	return &s
 }
 
-func NewModel() model {
-	styles := NewStyles()
-
-	// lessons := loadLessons()
-
-	ti := textinput.New()
-	ti.Placeholder = "Type here..."
-	ti.Focus()
-
-	return model{
-		state:         stateIntro,
-		// lessons:       lessons,
-		currentLesson: 0,
-		currentTopic:  0,
-		styles:        styles,
-		progress:      progress.New(progress.WithDefaultGradient()),
-		textInput:     ti,
-		viewport:      viewport.New(maxWidth, maxHeight-6),
-	}
-}
 
 func (m model) Init() tea.Cmd {
 	return textinput.Blink
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var (
-		cmd  tea.Cmd
-		cmds []tea.Cmd
-	)
+	var cmd tea.Cmd
+	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -120,18 +101,30 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "q":
 			return m, tea.Quit
 		case "enter":
-			if m.state == stateIntro {
-				m.state = stateContent
-				m.updateContent()
-			} else if m.state == stateChallenge {
-				if m.lessons[m.currentLesson].ChallengeFunc(&m) {
-					m.challengeMsg = "Correct! Press C to continue."
-					m.lessons[m.currentLesson].Topics[m.currentTopic].Completed = true
-				} else {
-					m.challengeMsg = "Try again."
-				}
-			}
-		case "c":
+        if m.state == stateIntro {
+            m.state = stateContent
+            m.updateContent()
+        } else if m.state == stateChallenge {
+            if len(m.lessons) > 0 {
+                if m.lessons[m.currentLesson].ChallengeFunc != nil {
+                    result := m.lessons[m.currentLesson].ChallengeFunc(&m)
+                    log.Printf("Challenge function result: %v", result)
+                    if result {
+                        m.challengeMsg = "Correct! Press right arrow to continue."
+                        m.lessons[m.currentLesson].Topics[m.currentTopic].Completed = true
+                    } else {
+                        m.challengeMsg = "Try again."
+                    }
+                } else {
+                    log.Printf("No challenge function for lesson: %s", m.lessons[m.currentLesson].Title)
+                    m.challengeMsg = "No challenge function defined for this lesson."
+                }
+            } else {
+                log.Printf("No lessons available")
+                m.challengeMsg = "No lessons available."
+            }
+        }
+		case "right":
 			if m.state == stateContent {
 				m.state = stateChallenge
 				m.textInput.SetValue("")
@@ -164,6 +157,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	return m, tea.Batch(cmds...)
 }
+
 
 
 func (m model) View() string {
@@ -251,10 +245,110 @@ func (m *model) updateViewportSize() {
 	// Update text input width to match viewport
 	m.textInput.Width = m.viewport.Width
 }
+
+func loadLessons() ([]Lesson, error) {
+    lessonsDir := "assets/lessons"
+    files, err := ioutil.ReadDir(lessonsDir)
+    if err != nil {
+        return nil, fmt.Errorf("failed to read lessons directory: %v", err)
+    }
+
+    var allLessons []Lesson
+    for _, file := range files {
+        if filepath.Ext(file.Name()) != ".yaml" && filepath.Ext(file.Name()) != ".yml" {
+            continue
+        }
+
+        filePath := filepath.Join(lessonsDir, file.Name())
+        yamlFile, err := ioutil.ReadFile(filePath)
+        if err != nil {
+            return nil, fmt.Errorf("failed to read lesson file %s: %v", file.Name(), err)
+        }
+
+        var lessons []Lesson
+        err = yaml.Unmarshal(yamlFile, &lessons)
+        if err != nil {
+            return nil, fmt.Errorf("failed to unmarshal lessons from %s: %v", file.Name(), err)
+        }
+
+        log.Printf("Loaded %d lessons from %s", len(lessons), file.Name())
+
+        // Set the lesson title from the filename if not specified in the YAML
+        for i := range lessons {
+            if lessons[i].Title == "" {
+                lessons[i].Title = strings.TrimSuffix(file.Name(), filepath.Ext(file.Name()))
+            }
+            log.Printf("Lesson title: %s", lessons[i].Title)
+
+            // Assign challenge functions based on lesson title
+            // Assign challenge functions based on lesson title
+						switch strings.ToLower(lessons[i].Title) {
+						case "passwords":
+								lessons[i].ChallengeFunc = passwordStrengthChallenge
+								lessons[i].ChallengeType = "passwordStrength"
+								log.Printf("Assigned passwordStrengthChallenge to lesson: %s", lessons[i].Title)
+						case "phishing":
+								lessons[i].ChallengeFunc = phishingAwarenessChallenge
+								lessons[i].ChallengeType = "phishingAwareness"
+								log.Printf("Assigned phishingAwarenessChallenge to lesson: %s", lessons[i].Title)
+						default:
+								lessons[i].ChallengeFunc = defaultChallenge
+								lessons[i].ChallengeType = "default"
+								log.Printf("Assigned defaultChallenge to lesson: %s", lessons[i].Title)
+						}
+        }
+
+        allLessons = append(allLessons, lessons...)
+    }
+
+    if len(allLessons) == 0 {
+        return nil, fmt.Errorf("no lessons found in %s", lessonsDir)
+    }
+
+    log.Printf("Total lessons loaded: %d", len(allLessons))
+    return allLessons, nil
+}
+
+func NewModel() model {
+	styles := NewStyles()
+
+	lessons, err := loadLessons()
+	if err != nil {
+		log.Printf("Failed to load lessons: %v", err)
+		lessons = []Lesson{}
+	}
+
+	ti := textinput.New()
+	ti.Placeholder = "Type here..."
+	ti.Focus()
+
+	m := model{
+		state:         stateIntro,
+		lessons:       lessons,
+		currentLesson: 0,
+		currentTopic:  0,
+		styles:        styles,
+		progress:      progress.New(progress.WithDefaultGradient()),
+		textInput:     ti,
+		viewport:      viewport.New(maxWidth, maxHeight-6),
+	}
+
+	if len(m.lessons) > 0 && len(m.lessons[0].Topics) > 0 {
+		m.updateContent()
+	}
+
+	return m
+}
+
 func (m *model) updateContent() {
+	if len(m.lessons) == 0 || len(m.lessons[m.currentLesson].Topics) == 0 {
+		m.content = "No lessons or topics available."
+		return
+	}
 	m.content = m.lessons[m.currentLesson].Topics[m.currentTopic].Content
 	m.viewport.SetContent(m.content)
 }
+
 
 func (m *model) moveToNextTopic() {
 	m.currentTopic++
@@ -298,47 +392,42 @@ func min(a, b int) int {
 	return b
 }
 
-// func loadLessons() []Lesson {
-// 	yamlFile, err := ioutil.ReadFile("lessons.yaml")
-// 	if err != nil {
-// 		panic(err)
-// 	}
+// Modify the challenge functions to include logging
+func passwordStrengthChallenge(m *model) bool {
+    password := m.textInput.Value()
+    log.Printf("Password challenge input: %s", password)
+    result := len(password) >= 12 &&
+        strings.ContainsAny(password, "ABCDEFGHIJKLMNOPQRSTUVWXYZ") &&
+        strings.ContainsAny(password, "abcdefghijklmnopqrstuvwxyz") &&
+        strings.ContainsAny(password, "0123456789") &&
+        strings.ContainsAny(password, "!@#$%^&*()_+-=[]{}|;:,.<>?")
+    log.Printf("Password challenge result: %v", result)
+    return result
+}
 
-// 	var lessons []Lesson
-// 	err = yaml.Unmarshal(yamlFile, &lessons)
-// 	if err != nil {
-// 		panic(err)
-// 	}
+func phishingAwarenessChallenge(m *model) bool {
+    answer := strings.ToLower(m.textInput.Value())
+    log.Printf("Phishing challenge input: %s", answer)
+    result := strings.Contains(answer, "urgent") || 
+           strings.Contains(answer, "personal information") ||
+           strings.Contains(answer, "suspicious url") ||
+           strings.Contains(answer, "generic greeting") ||
+           strings.Contains(answer, "poor grammar") ||
+           strings.Contains(answer, "unexpected attachment")
+    log.Printf("Phishing challenge result: %v", result)
+    return result
+}
 
-// 	// Assign challenge functions to lessons
-// 	lessons[0].ChallengeFunc = passwordStrengthChallenge
-// 	lessons[1].ChallengeFunc = phishingAwarenessChallenge
+func defaultChallenge(m *model) bool {
+    log.Printf("Default challenge called with input: %s", m.textInput.Value())
+    return false
+}
 
-// 	return lessons
-// }
 
-// func passwordStrengthChallenge(m *model) bool {
-// 	password := m.textInput.Value()
-// 	return len(password) >= 12 &&
-// 		strings.ContainsAny(password, "ABCDEFGHIJKLMNOPQRSTUVWXYZ") &&
-// 		strings.ContainsAny(password, "abcdefghijklmnopqrstuvwxyz") &&
-// 		strings.ContainsAny(password, "0123456789") &&
-// 		strings.ContainsAny(password, "!@#$%^&*()_+-=[]{}|;:,.<>?")
-// }
-
-// func phishingAwarenessChallenge(m *model) bool {
-// 	answer := strings.ToLower(m.textInput.Value())
-// 	return strings.Contains(answer, "urgent") || 
-// 		   strings.Contains(answer, "personal information") ||
-// 		   strings.Contains(answer, "suspicious url") ||
-// 		   strings.Contains(answer, "generic greeting") ||
-// 		   strings.Contains(answer, "poor grammar") ||
-// 		   strings.Contains(answer, "unexpected attachment")
-// }
 
 func main() {
 	p := tea.NewProgram(NewModel(), tea.WithAltScreen())
 	if err := p.Start(); err != nil {
-		fmt.Printf("There's been an error: %v", err)
+		log.Printf("There's been an error: %v", err)
 	}
 }

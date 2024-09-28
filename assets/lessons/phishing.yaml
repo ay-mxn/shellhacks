@@ -1,28 +1,17 @@
-- title: "Phishing Awareness"
+- title: "Recognizing Phishing Attempts"
   topics:
-    - title: "Recognizing Phishing Attempts"
-      content: |
-        Phishing is a technique used by cybercriminals to trick you into revealing sensitive information. Common signs of phishing include:
+    - title: "Common Phishing Tactics"
+      content: "Phishing attempts often use urgency, fear, or curiosity to manipulate victims. Be wary of emails that create a sense of urgency or threaten negative consequences if you don't act immediately."
+      challenge: "Name one common tactic used in phishing attempts:"
+    - title: "Spotting Fake URLs"
+      content: "Always check the URL before entering sensitive information. Phishers often use URLs that look similar to legitimate sites but with slight differences."
+      challenge: "What should you always check before entering sensitive information on a website?"
 
-        1. Urgent or threatening language
-        2. Requests for personal information
-        3. Suspicious or mismatched URLs
-        4. Generic greetings
-        5. Poor spelling and grammar
-        6. Unexpected attachments
-
-        Always verify the sender's identity and be cautious of unsolicited messages.
-      challenge: "Name one sign of a phishing attempt:"
-    - title: "Safe Email Practices"
-      content: |
-        Protecting yourself from email-based threats involves following these best practices:
-
-        1. Don't click on links or download attachments from unknown senders
-        2. Use spam filters and keep them updated
-        3. Enable two-factor authentication on your email account
-        4. Be cautious of emails asking for personal information
-        5. Verify the sender's email address
-        6. Use a secure email service that offers encryption
-
-        When in doubt, contact the supposed sender through a known, trusted channel to verify the email's legitimacy.
+- title: "Protecting Against Phishing"
+  topics:
+    - title: "Email Security Best Practices"
+      content: "Never click on links or download attachments from unknown or suspicious sources. When in doubt, contact the supposed sender through a known, trusted channel to verify the email's legitimacy."
       challenge: "What should you do if you're unsure about an email's legitimacy?"
+    - title: "Using Security Tools"
+      content: "Enable spam filters and keep them updated. Use anti-phishing toolbars in your web browser and ensure your antivirus software is up to date."
+      challenge: "Name one security tool that can help protect against phishing:"
