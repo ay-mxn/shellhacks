@@ -51,12 +51,11 @@ func reconPhishChallenge(m *Model) bool {
 
 func phishingAwarenessChallenge(m *Model) bool {
 	answer := strings.ToLower(m.textInput.Value())
-	return strings.Contains(answer, "urgent") || 
-		   strings.Contains(answer, "personal information") ||
-		   strings.Contains(answer, "suspicious url") ||
-		   strings.Contains(answer, "generic greeting") ||
-		   strings.Contains(answer, "poor grammar") ||
-		   strings.Contains(answer, "unexpected attachment")
+	return strings.Contains(answer, "spam filters") || 
+		   strings.Contains(answer, "browser extensions") ||
+		   strings.Contains(answer, "security awareness training") ||
+		   strings.Contains(answer, "endpoint security solutions") ||
+		   strings.Contains(answer, "password management tools")
 }
 
 

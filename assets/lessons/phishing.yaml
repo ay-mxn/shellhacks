@@ -9,7 +9,7 @@
 
                 Please verify your identity by clicking the link below:
 
-                [Click here to verify your account](http://fake-website.com/verify)
+                http://paypai.com/verify
 
                 If you do not verify your account within 24 hours, it will be permanently locked.
 
@@ -24,9 +24,8 @@
 
 - title: "Protecting Against Phishing"
   topics:
-    - title: "Email Security Best Practices"
-      content: "Never click on links or download attachments from unknown or suspicious sources. When in doubt, contact the supposed sender through a known, trusted channel to verify the email's legitimacy."
-      challenge: "What should you do if you're unsure about an email's legitimacy?"
     - title: "Using Security Tools"
       content: "Enable spam filters and keep them updated. Use anti-phishing toolbars in your web browser and ensure your antivirus software is up to date."
       challenge: "Name one security tool that can help protect against phishing:"
+      challengeType: phishingAwareness
+      challengeFunc: phishingAwarenessChallenge
