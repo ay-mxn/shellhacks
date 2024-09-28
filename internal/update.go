@@ -1,10 +1,9 @@
 package internal
 
 import (
-	"os/exec"
-
 	"github.com/charmbracelet/bubbles/progress"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/mbndr/figlet4go"
 )
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -152,10 +151,24 @@ func (m Model) focusTextInput() tea.Msg {
 }
 
 func generateASCIIArt() string {
-	cmd := exec.Command("bash", "-c", "figlet -f roman -t -c Digital Security | lolcat")
-	asciiArt, err := cmd.Output()
+	ascii := figlet4go.NewAsciiRender()
+
+	// Set custom options
+	options := figlet4go.NewRenderOptions()
+	options.FontName = "roman"
+	options.FontColor = []figlet4go.Color{
+		figlet4go.ColorRed,
+		figlet4go.ColorYellow,
+		figlet4go.ColorGreen,
+		figlet4go.ColorCyan,
+		figlet4go.ColorBlue,
+		figlet4go.ColorMagenta,
+	}
+
+	renderStr, err := ascii.RenderOpts("Digital Security", options)
 	if err != nil {
 		return "Digital Security Literacy CLI\n"
 	}
-	return string(asciiArt)
+
+	return renderStr
 }
