@@ -1,88 +1,201 @@
 package internal
 
 import (
+	"errors"
 	"fmt"
-	"io/ioutil"
-	"path/filepath"
+	"os"
+	"strconv"
+	"strings"
+	"time"
 
-	"gopkg.in/yaml.v2"
+	"github.com/charmbracelet/huh"
+	"github.com/charmbracelet/huh/spinner"
+	"github.com/charmbracelet/lipgloss"
+	xstrings "github.com/charmbracelet/x/exp/strings"
 )
 
-type Lesson struct {
-	Title  string  `yaml:"title"`
-	Topics []Topic `yaml:"topics"`
-}
+type Spice int
 
-type Topic struct {
-	Title         string `yaml:"title"`
-	Content       string `yaml:"content"`
-	Challenge     string `yaml:"challenge"`
-	ChallengeType string `yaml:"challengeType"`
-	ChallengeFunc func(*Model) bool `yaml:"-"`
-	Completed     bool
-}
+const (
+	Mild Spice = iota + 1
+	Medium
+	Hot
+)
 
-func loadLessons() []Lesson {
-	lessonsDir := "assets/lessons"
-	files, err := ioutil.ReadDir(lessonsDir)
-	if err != nil {
-		return []Lesson{}
-	}
-
-	var allLessons []Lesson
-	for _, file := range files {
-		if filepath.Ext(file.Name()) != ".yaml" && filepath.Ext(file.Name()) != ".yml" {
-			continue
-		}
-
-		filePath := filepath.Join(lessonsDir, file.Name())
-		yamlFile, err := ioutil.ReadFile(filePath)
-		if err != nil {
-			fmt.Printf("Failed to read lesson file %s: %v\n", file.Name(), err)
-			continue
-		}
-
-		var lessons []Lesson
-		err = yaml.Unmarshal(yamlFile, &lessons)
-		if err != nil {
-			fmt.Printf("Failed to unmarshal lessons from %s: %v\n", file.Name(), err)
-			continue
-		}
-
-		for i := range lessons {
-			for j := range lessons[i].Topics {
-				topic := &lessons[i].Topics[j]
-
-				fmt.Printf("Challenge: %s, ChallengeType: %s\n", topic.Challenge, topic.ChallengeType)
-				
-				if topic.Challenge != "" && topic.ChallengeType != "" {
-					topic.ChallengeFunc = getChallengeFunc(topic.ChallengeType)
-				}
-			}
-		}
-
-		allLessons = append(allLessons, lessons...)
-	}
-
-	return allLessons
-}
-
-func getChallengeFunc(challengeType string) func(*Model) bool {
-	switch challengeType {
-	case "passwordStrength":
-		return passwordStrengthChallenge
-	case "passwordManager": // Added case for passwordManager
-		return passwordManagerChallenge
-	case "reconPhish":
-		return reconPhishChallenge
-	case "phishingAwareness":
-		return phishingAwarenessChallenge
-	case "multipleChoice":
-		return multipleChoiceChallenge
-	case "freeResponse":
-		return freeResponseChallenge
-	
+func (s Spice) String() string {
+	switch s {
+	case Mild:
+		return "Mild "
+	case Medium:
+		return "Medium-Spicy "
+	case Hot:
+		return "Spicy-Hot "
 	default:
-		return defaultChallenge
+		return ""
+	}
+}
+
+type Order struct {
+	Burger       Burger
+	Side         string
+	Name         string
+	Instructions string
+	Discount     bool
+}
+
+type Burger struct {
+	Type     string
+	Toppings []string
+	Spice    Spice
+}
+
+func main() {
+	var burger Burger
+	var order = Order{Burger: burger}
+
+	// Should we run in accessible mode?
+	accessible, _ := strconv.ParseBool(os.Getenv("ACCESSIBLE"))
+
+	form := huh.NewForm(
+		huh.NewGroup(huh.NewNote().
+			Title("Charmburger").
+			Description("Welcome to _Charmburger™_.\n\nHow may we take your order?\n\n").
+			Next(true).
+			NextLabel("Next"),
+		),
+
+		// Choose a burger.
+		// We'll need to know what topping to add too.
+		huh.NewGroup(
+			huh.NewSelect[string]().
+				Options(huh.NewOptions("Charmburger Classic", "Chickwich", "Fishburger", "Charmpossible™ Burger")...).
+				Title("Choose your burger").
+				Description("At Charm we truly have a burger for everyone.").
+				Validate(func(t string) error {
+					if t == "Fishburger" {
+						return fmt.Errorf("no fish today, sorry")
+					}
+					return nil
+				}).
+				Value(&order.Burger.Type),
+
+			huh.NewMultiSelect[string]().
+				Title("Toppings").
+				Description("Choose up to 4.").
+				Options(
+					huh.NewOption("Lettuce", "Lettuce").Selected(true),
+					huh.NewOption("Tomatoes", "Tomatoes").Selected(true),
+					huh.NewOption("Charm Sauce", "Charm Sauce"),
+					huh.NewOption("Jalapeños", "Jalapeños"),
+					huh.NewOption("Cheese", "Cheese"),
+					huh.NewOption("Vegan Cheese", "Vegan Cheese"),
+					huh.NewOption("Nutella", "Nutella"),
+				).
+				Validate(func(t []string) error {
+					if len(t) <= 0 {
+						return fmt.Errorf("at least one topping is required")
+					}
+					return nil
+				}).
+				Value(&order.Burger.Toppings).
+				Filterable(true).
+				Limit(4),
+		),
+
+		// Prompt for toppings and special instructions.
+		// The customer can ask for up to 4 toppings.
+		huh.NewGroup(
+			huh.NewSelect[Spice]().
+				Title("Spice level").
+				Options(
+					huh.NewOption("Mild", Mild).Selected(true),
+					huh.NewOption("Medium", Medium),
+					huh.NewOption("Hot", Hot),
+				).
+				Value(&order.Burger.Spice),
+
+			huh.NewSelect[string]().
+				Options(huh.NewOptions("Fries", "Disco Fries", "R&B Fries", "Carrots")...).
+				Value(&order.Side).
+				Title("Sides").
+				Description("You get one free side with this order."),
+		),
+
+		// Gather final details for the order.
+		huh.NewGroup(
+			huh.NewInput().
+				Value(&order.Name).
+				Title("What's your name?").
+				Placeholder("Margaret Thatcher").
+				Validate(func(s string) error {
+					if s == "Frank" {
+						return errors.New("no franks, sorry")
+					}
+					return nil
+				}).
+				Description("For when your order is ready."),
+
+			huh.NewText().
+				Value(&order.Instructions).
+				Placeholder("Just put it in the mailbox please").
+				Title("Special Instructions").
+				Description("Anything we should know?").
+				CharLimit(400).
+				Lines(5),
+
+			huh.NewConfirm().
+				Title("Would you like 15% off?").
+				Value(&order.Discount).
+				Affirmative("Yes!").
+				Negative("No."),
+		),
+	).WithAccessible(accessible)
+
+	err := form.Run()
+
+	if err != nil {
+		fmt.Println("Uh oh:", err)
+		os.Exit(1)
+	}
+
+	prepareBurger := func() {
+		time.Sleep(2 * time.Second)
+	}
+
+	_ = spinner.New().Title("Preparing your burger...").Accessible(accessible).Action(prepareBurger).Run()
+
+	// Print order summary.
+	{
+		var sb strings.Builder
+		keyword := func(s string) string {
+			return lipgloss.NewStyle().Foreground(lipgloss.Color("212")).Render(s)
+		}
+		fmt.Fprintf(&sb,
+			"%s\n\nOne %s%s, topped with %s with %s on the side.",
+			lipgloss.NewStyle().Bold(true).Render("BURGER RECEIPT"),
+			keyword(order.Burger.Spice.String()),
+			keyword(order.Burger.Type),
+			keyword(xstrings.EnglishJoin(order.Burger.Toppings, true)),
+			keyword(order.Side),
+		)
+
+		name := order.Name
+		if name != "" {
+			name = ", " + name
+		}
+		fmt.Fprintf(&sb, "\n\nThanks for your order%s!", name)
+
+		if order.Discount {
+			fmt.Fprint(&sb, "\n\nEnjoy 15% off.")
+		}
+
+		fmt.Println(
+			lipgloss.NewStyle().
+				Width(40).
+				BorderStyle(lipgloss.RoundedBorder()).
+				BorderForeground(lipgloss.Color("63")).
+				Padding(1, 2).
+				Render(sb.String()),
+		)
 	}
 }
