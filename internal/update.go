@@ -84,19 +84,22 @@ func (m Model) handleUpDown(key string) Model {
 }
 
 func (m *Model) moveToNextTopic() {
-	currentLesson := &m.lessons[m.currentLesson]
-	currentLesson.Topics[m.currentTopic].Completed = true
-	m.updateProgress()
+    currentLesson := &m.lessons[m.currentLesson]
+    currentLesson.Topics[m.currentTopic].Completed = true
+    
+    // Update progress after marking the topic as completed
+    m.updateProgress()
 
-	m.currentTopic++
-	if m.currentTopic >= len(currentLesson.Topics) {
-		m.moveToNextLesson()
-	} else {
-		m.state = stateContent
-		m.updateContent()
-	}
-	m.challengeMsg = ""
+    m.currentTopic++
+    if m.currentTopic >= len(currentLesson.Topics) {
+        m.moveToNextLesson()
+    } else {
+        m.state = stateContent
+        m.updateContent()
+    }
+    m.challengeMsg = ""
 }
+
 
 func (m *Model) moveToNextLesson() {
 	m.currentLesson++
