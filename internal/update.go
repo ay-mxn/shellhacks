@@ -66,8 +66,8 @@ func (m Model) handleEnter() (tea.Model, tea.Cmd) {
 	case stateChallenge:
 		topic := &m.lessons[m.currentLesson].Topics[m.currentTopic]
 		if topic.ChallengeFunc != nil && topic.ChallengeFunc(&m) {
-			m.challengeMsg = "Correct! Press right arrow to continue."
 			topic.Completed = true
+			m.moveToNextTopic()
 			m.updateProgressOnSlideChange()
 		} else {
 			m.challengeMsg = "Try again."
@@ -87,11 +87,12 @@ func (m Model) handleRight() (tea.Model, tea.Cmd) {
 			return m, m.focusTextInput
 		} else if m.canMoveToNextTopic() {
 			m.moveToNextTopic()
+			m.updateProgressOnSlideChange()
 		}
 	} else if m.state == stateChallenge && m.lessons[m.currentLesson].Topics[m.currentTopic].Completed {
 		m.moveToNextTopic()
+		m.updateProgressOnSlideChange()
 	}
-	m.updateProgressOnSlideChange()
 	return m, nil
 }
 
@@ -133,20 +134,16 @@ func (m *Model) moveToPreviousTopic() {
 
 func (m *Model) updateProgressOnSlideChange() {
 	totalSlides := 0
-	viewedSlides := 0
+	currentSlide := 0
 	for i, lesson := range m.lessons {
-		for j, topic := range lesson.Topics {
+		for j := range lesson.Topics {
 			totalSlides++
-			if i < m.currentLesson || (i == m.currentLesson && j < m.currentTopic) {
-				viewedSlides++
-			} else if i == m.currentLesson && j == m.currentTopic {
-				if topic.Challenge == "" || topic.Completed {
-					viewedSlides++
-				}
+			if i < m.currentLesson || (i == m.currentLesson && j <= m.currentTopic) {
+				currentSlide++
 			}
 		}
 	}
-	m.targetPercent = float64(viewedSlides) / float64(totalSlides)
+	m.targetPercent = float64(currentSlide) / float64(totalSlides)
 }
 
 func (m Model) focusTextInput() tea.Msg {
