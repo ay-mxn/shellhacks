@@ -36,17 +36,17 @@ type model struct {
 }
 
 type Lesson struct {
-    Title         string   `yaml:"title"`
-    Topics        []Topic  `yaml:"topics"`
-    ChallengeFunc func(*model) bool `yaml:"-"`
-    ChallengeType string   // Add this line
+    Title  string  `yaml:"title"`
+    Topics []Topic `yaml:"topics"`
 }
 
 type Topic struct {
-	Title     string `yaml:"title"`
-	Content   string `yaml:"content"`
-	Challenge string `yaml:"challenge"`
-	Completed bool
+    Title        string `yaml:"title"`
+    Content      string `yaml:"content"`
+    Challenge    string `yaml:"challenge"`
+    ChallengeType string `yaml:"challengeType"`
+    ChallengeFunc func(*model) bool `yaml:"-"`
+    Completed    bool
 }
 
 type Styles struct {
@@ -104,26 +104,28 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
         if m.state == stateIntro {
             m.state = stateContent
             m.updateContent()
+            fmt.Println("Moved to content state")
         } else if m.state == stateChallenge {
-            if len(m.lessons) > 0 {
-                if m.lessons[m.currentLesson].ChallengeFunc != nil {
-                    result := m.lessons[m.currentLesson].ChallengeFunc(&m)
-                    log.Printf("Challenge function result: %v", result)
-                    if result {
-                        m.challengeMsg = "Correct! Press right arrow to continue."
-                        m.lessons[m.currentLesson].Topics[m.currentTopic].Completed = true
-                    } else {
-                        m.challengeMsg = "Try again."
-                    }
+            currentTopic := &m.lessons[m.currentLesson].Topics[m.currentTopic]
+            fmt.Printf("Current topic: %s, Challenge type: %s\n", currentTopic.Title, currentTopic.ChallengeType)
+            if currentTopic.ChallengeFunc != nil {
+                fmt.Printf("Calling challenge function for topic: %s\n", currentTopic.Title)
+                result := currentTopic.ChallengeFunc(&m)
+                fmt.Printf("Challenge function result: %v\n", result)
+                if result {
+                    m.challengeMsg = "Correct! Press right arrow to continue."
+                    currentTopic.Completed = true
+                    fmt.Println("Challenge completed successfully")
                 } else {
-                    log.Printf("No challenge function for lesson: %s", m.lessons[m.currentLesson].Title)
-                    m.challengeMsg = "No challenge function defined for this lesson."
+                    m.challengeMsg = "Try again."
+                    fmt.Println("Challenge failed, try again")
                 }
             } else {
-                log.Printf("No lessons available")
-                m.challengeMsg = "No lessons available."
+                fmt.Printf("No challenge function for topic: %s\n", currentTopic.Title)
+                m.challengeMsg = "No challenge function defined for this topic."
             }
         }
+        
 		case "right":
 			if m.state == stateContent {
 				m.state = stateChallenge
@@ -250,6 +252,7 @@ func loadLessons() ([]Lesson, error) {
     lessonsDir := "assets/lessons"
     files, err := ioutil.ReadDir(lessonsDir)
     if err != nil {
+        fmt.Printf("Failed to read lessons directory: %v\n", err)
         return nil, fmt.Errorf("failed to read lessons directory: %v", err)
     }
 
@@ -262,50 +265,50 @@ func loadLessons() ([]Lesson, error) {
         filePath := filepath.Join(lessonsDir, file.Name())
         yamlFile, err := ioutil.ReadFile(filePath)
         if err != nil {
+            fmt.Printf("Failed to read lesson file %s: %v\n", file.Name(), err)
             return nil, fmt.Errorf("failed to read lesson file %s: %v", file.Name(), err)
         }
 
         var lessons []Lesson
         err = yaml.Unmarshal(yamlFile, &lessons)
         if err != nil {
+            fmt.Printf("Failed to unmarshal lessons from %s: %v\n", file.Name(), err)
             return nil, fmt.Errorf("failed to unmarshal lessons from %s: %v", file.Name(), err)
         }
 
-        log.Printf("Loaded %d lessons from %s", len(lessons), file.Name())
+        fmt.Printf("Loaded %d lessons from %s\n", len(lessons), file.Name())
 
-        // Set the lesson title from the filename if not specified in the YAML
         for i := range lessons {
-            if lessons[i].Title == "" {
-                lessons[i].Title = strings.TrimSuffix(file.Name(), filepath.Ext(file.Name()))
+            fmt.Printf("Lesson title: %s\n", lessons[i].Title)
+            for j := range lessons[i].Topics {
+                topic := &lessons[i].Topics[j]
+                fmt.Printf("  Topic: %s, Challenge type: %s\n", topic.Title, topic.ChallengeType)
+                
+                // Assign challenge functions based on the challengeType specified in YAML
+                switch topic.ChallengeType {
+                case "passwordStrength":
+                    topic.ChallengeFunc = passwordStrengthChallenge
+                case "multipleChoice":
+                    topic.ChallengeFunc = multipleChoiceChallenge
+                case "freeResponse":
+                    topic.ChallengeFunc = freeResponseChallenge
+                default:
+                    topic.ChallengeFunc = defaultChallenge
+                    fmt.Printf("  Warning: Unknown challenge type '%s' for topic '%s'. Using default challenge.\n", 
+                               topic.ChallengeType, topic.Title)
+                }
             }
-            log.Printf("Lesson title: %s", lessons[i].Title)
-
-            // Assign challenge functions based on lesson title
-            // Assign challenge functions based on lesson title
-						switch strings.ToLower(lessons[i].Title) {
-						case "passwords":
-								lessons[i].ChallengeFunc = passwordStrengthChallenge
-								lessons[i].ChallengeType = "passwordStrength"
-								log.Printf("Assigned passwordStrengthChallenge to lesson: %s", lessons[i].Title)
-						case "phishing":
-								lessons[i].ChallengeFunc = phishingAwarenessChallenge
-								lessons[i].ChallengeType = "phishingAwareness"
-								log.Printf("Assigned phishingAwarenessChallenge to lesson: %s", lessons[i].Title)
-						default:
-								lessons[i].ChallengeFunc = defaultChallenge
-								lessons[i].ChallengeType = "default"
-								log.Printf("Assigned defaultChallenge to lesson: %s", lessons[i].Title)
-						}
         }
 
         allLessons = append(allLessons, lessons...)
     }
 
     if len(allLessons) == 0 {
+        fmt.Println("No lessons found")
         return nil, fmt.Errorf("no lessons found in %s", lessonsDir)
     }
 
-    log.Printf("Total lessons loaded: %d", len(allLessons))
+    fmt.Printf("Total lessons loaded: %d\n", len(allLessons))
     return allLessons, nil
 }
 
@@ -423,6 +426,17 @@ func defaultChallenge(m *model) bool {
     return false
 }
 
+func multipleChoiceChallenge(m *model) bool {
+    fmt.Printf("Multiple choice challenge for topic: %s\n", m.lessons[m.currentLesson].Topics[m.currentTopic].Title)
+    // Implement your multiple choice logic here
+    return true // Placeholder
+}
+
+func freeResponseChallenge(m *model) bool {
+    fmt.Printf("Free response challenge for topic: %s\n", m.lessons[m.currentLesson].Topics[m.currentTopic].Title)
+    // Implement your free response checking logic here
+    return len(m.textInput.Value()) > 0 // Simplified check for demonstration
+}
 
 
 func main() {
