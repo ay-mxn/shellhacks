@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	// "io/ioutil"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/progress"
@@ -10,7 +10,7 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"gopkg.in/yaml.v2"
+	// "gopkg.in/yaml.v2"
 )
 
 const (
@@ -86,7 +86,7 @@ func NewStyles() *Styles {
 func NewModel() model {
 	styles := NewStyles()
 
-	lessons := loadLessons()
+	// lessons := loadLessons()
 
 	ti := textinput.New()
 	ti.Placeholder = "Type here..."
@@ -94,7 +94,7 @@ func NewModel() model {
 
 	return model{
 		state:         stateIntro,
-		lessons:       lessons,
+		// lessons:       lessons,
 		currentLesson: 0,
 		currentTopic:  0,
 		styles:        styles,
@@ -298,43 +298,43 @@ func min(a, b int) int {
 	return b
 }
 
-func loadLessons() []Lesson {
-	yamlFile, err := ioutil.ReadFile("lessons.yaml")
-	if err != nil {
-		panic(err)
-	}
+// func loadLessons() []Lesson {
+// 	yamlFile, err := ioutil.ReadFile("lessons.yaml")
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	var lessons []Lesson
-	err = yaml.Unmarshal(yamlFile, &lessons)
-	if err != nil {
-		panic(err)
-	}
+// 	var lessons []Lesson
+// 	err = yaml.Unmarshal(yamlFile, &lessons)
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	// Assign challenge functions to lessons
-	lessons[0].ChallengeFunc = passwordStrengthChallenge
-	lessons[1].ChallengeFunc = phishingAwarenessChallenge
+// 	// Assign challenge functions to lessons
+// 	lessons[0].ChallengeFunc = passwordStrengthChallenge
+// 	lessons[1].ChallengeFunc = phishingAwarenessChallenge
 
-	return lessons
-}
+// 	return lessons
+// }
 
-func passwordStrengthChallenge(m *model) bool {
-	password := m.textInput.Value()
-	return len(password) >= 12 &&
-		strings.ContainsAny(password, "ABCDEFGHIJKLMNOPQRSTUVWXYZ") &&
-		strings.ContainsAny(password, "abcdefghijklmnopqrstuvwxyz") &&
-		strings.ContainsAny(password, "0123456789") &&
-		strings.ContainsAny(password, "!@#$%^&*()_+-=[]{}|;:,.<>?")
-}
+// func passwordStrengthChallenge(m *model) bool {
+// 	password := m.textInput.Value()
+// 	return len(password) >= 12 &&
+// 		strings.ContainsAny(password, "ABCDEFGHIJKLMNOPQRSTUVWXYZ") &&
+// 		strings.ContainsAny(password, "abcdefghijklmnopqrstuvwxyz") &&
+// 		strings.ContainsAny(password, "0123456789") &&
+// 		strings.ContainsAny(password, "!@#$%^&*()_+-=[]{}|;:,.<>?")
+// }
 
-func phishingAwarenessChallenge(m *model) bool {
-	answer := strings.ToLower(m.textInput.Value())
-	return strings.Contains(answer, "urgent") || 
-		   strings.Contains(answer, "personal information") ||
-		   strings.Contains(answer, "suspicious url") ||
-		   strings.Contains(answer, "generic greeting") ||
-		   strings.Contains(answer, "poor grammar") ||
-		   strings.Contains(answer, "unexpected attachment")
-}
+// func phishingAwarenessChallenge(m *model) bool {
+// 	answer := strings.ToLower(m.textInput.Value())
+// 	return strings.Contains(answer, "urgent") || 
+// 		   strings.Contains(answer, "personal information") ||
+// 		   strings.Contains(answer, "suspicious url") ||
+// 		   strings.Contains(answer, "generic greeting") ||
+// 		   strings.Contains(answer, "poor grammar") ||
+// 		   strings.Contains(answer, "unexpected attachment")
+// }
 
 func main() {
 	p := tea.NewProgram(NewModel(), tea.WithAltScreen())
