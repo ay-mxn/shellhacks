@@ -75,6 +75,17 @@ func (m Model) Init() tea.Cmd {
 	)
 }
 
+func (m Model) handleUpDown(key string) (Model, tea.Cmd) {
+	if m.state == stateContent {
+		if key == "up" {
+			m.viewport.LineUp(1)
+		} else {
+			m.viewport.LineDown(1)
+		}
+	}
+	return m, nil
+}
+
 func (m *Model) updateContent() {
 	if len(m.lessons) == 0 || len(m.lessons[m.currentLesson].Topics) == 0 {
 		m.content = "No lessons or topics available."
@@ -118,6 +129,11 @@ func (m *Model) calculateProgress() float64 {
 	return float64(completedTopics) / float64(totalTopics)
 }
 
+func (m *Model) canMoveToNextTopic() bool {
+	currentTopic := m.lessons[m.currentLesson].Topics[m.currentTopic]
+	return currentTopic.Challenge == "" || currentTopic.Completed
+}
+
 func min(a, b int) int {
 	if a < b {
 		return a
@@ -132,4 +148,3 @@ func tickCmd() tea.Cmd {
 		return tickMsg(t)
 	})
 }
-

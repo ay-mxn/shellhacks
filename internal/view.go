@@ -79,8 +79,14 @@ func (m Model) renderChallenge() string {
 }
 
 func (m Model) renderFooter() string {
-	if m.state == stateContent {
-		return m.styles.FooterText.Render("Press right arrow to continue • Up/Down to scroll • Q to quit")
+	var footerText string
+	switch m.state {
+	case stateIntro:
+		footerText = "Press Enter to start • Q to quit"
+	case stateContent:
+		footerText = "← → to navigate • ↑↓ to scroll • Enter for challenge • Q to quit"
+	case stateChallenge:
+		footerText = "Enter to submit • ← to go back • Q to quit"
 	}
-	return m.styles.FooterText.Render("Press Enter to submit • Q to quit")
+	return m.styles.FooterText.Render(footerText)
 }

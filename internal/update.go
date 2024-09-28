@@ -20,8 +20,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m.handleEnter()
 		case "right":
 			return m.handleRight()
+		case "left":
+			return m.handleLeft()
 		case "up", "down":
-			return m.handleUpDown(msg.String())
+			updatedModel, cmd := m.handleUpDown(msg.String())
+			return updatedModel, cmd
 		}
 	case tea.WindowSizeMsg:
 		m.windowWidth = msg.Width
@@ -30,6 +33,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tickMsg:
 		if m.progress.Percent() < m.targetPercent {
 			cmd := m.progress.IncrPercent(0.01)
+			return m, tea.Batch(tickCmd(), cmd)
+		} else if m.progress.Percent() > m.targetPercent {
+			cmd := m.progress.SetPercent(m.targetPercent)
 			return m, tea.Batch(tickCmd(), cmd)
 		}
 		return m, tickCmd()
@@ -79,24 +85,20 @@ func (m Model) handleRight() (tea.Model, tea.Cmd) {
 			m.textInput.SetValue("")
 			m.challengeMsg = ""
 			return m, m.focusTextInput
-		} else {
+		} else if m.canMoveToNextTopic() {
 			m.moveToNextTopic()
-			m.updateProgressOnSlideChange()
 		}
 	} else if m.state == stateChallenge && m.lessons[m.currentLesson].Topics[m.currentTopic].Completed {
 		m.moveToNextTopic()
-		m.updateProgressOnSlideChange()
 	}
+	m.updateProgressOnSlideChange()
 	return m, nil
 }
 
-func (m Model) handleUpDown(key string) (tea.Model, tea.Cmd) {
-	if m.state == stateContent {
-		if key == "up" {
-			m.viewport.LineUp(1)
-		} else {
-			m.viewport.LineDown(1)
-		}
+func (m Model) handleLeft() (tea.Model, tea.Cmd) {
+	if m.state == stateContent || m.state == stateChallenge {
+		m.moveToPreviousTopic()
+		m.updateProgressOnSlideChange()
 	}
 	return m, nil
 }
@@ -104,32 +106,47 @@ func (m Model) handleUpDown(key string) (tea.Model, tea.Cmd) {
 func (m *Model) moveToNextTopic() {
 	m.currentTopic++
 	if m.currentTopic >= len(m.lessons[m.currentLesson].Topics) {
-		m.currentLesson++
-		m.currentTopic = 0
-		if m.currentLesson >= len(m.lessons) {
-			m.currentLesson = 0
-			m.state = stateIntro
+		if m.currentLesson < len(m.lessons)-1 {
+			m.currentLesson++
+			m.currentTopic = 0
 		} else {
-			m.state = stateContent
+			m.currentTopic = len(m.lessons[m.currentLesson].Topics) - 1
 		}
-	} else {
-		m.state = stateContent
 	}
+	m.state = stateContent
+	m.updateContent()
+}
+
+func (m *Model) moveToPreviousTopic() {
+	m.currentTopic--
+	if m.currentTopic < 0 {
+		if m.currentLesson > 0 {
+			m.currentLesson--
+			m.currentTopic = len(m.lessons[m.currentLesson].Topics) - 1
+		} else {
+			m.currentTopic = 0
+		}
+	}
+	m.state = stateContent
 	m.updateContent()
 }
 
 func (m *Model) updateProgressOnSlideChange() {
 	totalSlides := 0
-	currentSlide := 0
+	viewedSlides := 0
 	for i, lesson := range m.lessons {
-		for j := range lesson.Topics {
+		for j, topic := range lesson.Topics {
 			totalSlides++
-			if i < m.currentLesson || (i == m.currentLesson && j <= m.currentTopic) {
-				currentSlide++
+			if i < m.currentLesson || (i == m.currentLesson && j < m.currentTopic) {
+				viewedSlides++
+			} else if i == m.currentLesson && j == m.currentTopic {
+				if topic.Challenge == "" || topic.Completed {
+					viewedSlides++
+				}
 			}
 		}
 	}
-	m.targetPercent = float64(currentSlide) / float64(totalSlides)
+	m.targetPercent = float64(viewedSlides) / float64(totalSlides)
 }
 
 func (m Model) focusTextInput() tea.Msg {
