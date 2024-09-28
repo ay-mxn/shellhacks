@@ -1,10 +1,23 @@
 - title: "Recognizing Phishing Attempts"
   topics:
-    - title: "Common Phishing Tactics"
-      content: "Phishing attempts often use urgency, fear, or curiosity to manipulate victims. Be wary of emails that create a sense of urgency or threaten negative consequences if you don't act immediately."
-      challenge: "Name one common tactic used in phishing attempts:"
     - title: "Spotting a Phising Email"
-      content: "Always check the contents of the email before entering sensitive information. Phishers often make the body of the email look similar to legitimate sites but with slight differences."
+      content: "Always check the contents of the email before entering sensitive information. Phishers often make the body of the email look similar to legitimate sites but with slight differences:\n\nFrom: security@paypall.com\nSubject: Urgent: Your account has been suspended\n
+
+                Dear Customer,
+
+                We noticed some unusual activity on your account. For your protection, we have temporarily suspended your account.
+
+                Please verify your identity by clicking the link below:
+
+                [Click here to verify your account](http://fake-website.com/verify)
+
+                If you do not verify your account within 24 hours, it will be permanently locked.
+
+                Thank you for your prompt attention to this matter.
+
+                Sincerely,
+                PayPal Security Team
+      "
       challenge: "Is the email a phishing scam or legitmate?"
       challengeType: reconPhish
       challengeFunc: reconPhishChallenge
