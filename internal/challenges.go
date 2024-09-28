@@ -13,6 +13,15 @@ func passwordStrengthChallenge(m *Model) bool {
 		strings.ContainsAny(password, "!@#$%^&*()_+-=[]{}|;:,.<>?")
 }
 
+func passwordManagerChallenge(m *Model) bool {
+	answer := strings.ToLower(m.textInput.Value())
+	return strings.Contains(answer, "generating strong, unique passwords for each account") || 
+		   strings.Contains(answer, "storing passwords in an encrypted vault") ||
+		   strings.Contains(answer, "auto-filling login forms") ||
+		   strings.Contains(answer, "synchronizing across devices") ||
+		   strings.Contains(answer, "alerting you to potentially compromised passwords")
+}
+
 func phishingAwarenessChallenge(m *Model) bool {
 	answer := strings.ToLower(m.textInput.Value())
 	return strings.Contains(answer, "urgent") || 
@@ -36,3 +45,6 @@ func freeResponseChallenge(m *Model) bool {
 func defaultChallenge(m *Model) bool {
 	return false
 }
+
+// New function for password manager challenge
+

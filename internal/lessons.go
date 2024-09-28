@@ -75,6 +75,8 @@ func getChallengeFunc(challengeType string) func(*Model) bool {
 		return multipleChoiceChallenge
 	case "freeResponse":
 		return freeResponseChallenge
+	case "passwordManager": // Added case for passwordManager
+		return passwordManagerChallenge
 	default:
 		return defaultChallenge
 	}
