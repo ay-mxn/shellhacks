@@ -52,6 +52,8 @@ func loadLessons() []Lesson {
 		for i := range lessons {
 			for j := range lessons[i].Topics {
 				topic := &lessons[i].Topics[j]
+
+				fmt.Printf("Challenge: %s, ChallengeType: %s\n", topic.Challenge, topic.ChallengeType)
 				
 				if topic.Challenge != "" && topic.ChallengeType != "" {
 					topic.ChallengeFunc = getChallengeFunc(topic.ChallengeType)
