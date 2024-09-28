@@ -85,6 +85,11 @@ func (m *Model) updateViewportSize() {
 	m.textInput.Width = m.viewport.Width
 }
 
+func (m *Model) setPhishingEmailContent() {
+	// Set the viewport content for the phishing challenge
+	m.viewport.SetContent(phishingEmail)
+}
+
 func min(a, b int) int {
 	if a < b {
 		return a

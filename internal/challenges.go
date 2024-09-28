@@ -4,6 +4,26 @@ import (
 	"strings"
 )
 
+const phishingEmail = `
+	From: security@paypall.com
+	Subject: Urgent: Your account has been suspended
+
+	Dear Customer,
+
+	We noticed some unusual activity on your account. For your protection, we have temporarily suspended your account.
+
+	Please verify your identity by clicking the link below:
+
+	[Click here to verify your account](http://fake-website.com/verify)
+
+	If you do not verify your account within 24 hours, it will be permanently locked.
+
+	Thank you for your prompt attention to this matter.
+
+	Sincerely,
+	PayPal Security Team
+	`
+
 func passwordStrengthChallenge(m *Model) bool {
 	password := m.textInput.Value()
 	return len(password) >= 12 &&
@@ -22,6 +42,13 @@ func passwordManagerChallenge(m *Model) bool {
 		   strings.Contains(answer, "alerting you to potentially compromised passwords")
 }
 
+func reconPhishChallenge(m *Model) bool {
+	m.viewport.SetContent(phishingEmail)
+	answer := strings.ToLower(m.textInput.Value())
+	return strings.Contains(answer, "yes") || 
+		   strings.Contains(answer, "y")
+}
+
 func phishingAwarenessChallenge(m *Model) bool {
 	answer := strings.ToLower(m.textInput.Value())
 	return strings.Contains(answer, "urgent") || 
@@ -31,6 +58,8 @@ func phishingAwarenessChallenge(m *Model) bool {
 		   strings.Contains(answer, "poor grammar") ||
 		   strings.Contains(answer, "unexpected attachment")
 }
+
+
 
 func multipleChoiceChallenge(m *Model) bool {
 	// TODO: Implement multiple choice logic

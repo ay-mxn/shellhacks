@@ -71,12 +71,15 @@ func getChallengeFunc(challengeType string) func(*Model) bool {
 	switch challengeType {
 	case "passwordStrength":
 		return passwordStrengthChallenge
+	case "passwordManager": // Added case for passwordManager
+		return passwordManagerChallenge
+	case "reconPhish":
+		return reconPhishChallenge
 	case "multipleChoice":
 		return multipleChoiceChallenge
 	case "freeResponse":
 		return freeResponseChallenge
-	case "passwordManager": // Added case for passwordManager
-		return passwordManagerChallenge
+	
 	default:
 		return defaultChallenge
 	}
