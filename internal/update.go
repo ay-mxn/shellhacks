@@ -1,12 +1,14 @@
 package internal
 
 import (
+	"os/exec"
+
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+// Update handles all the application logic and state updates
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
-	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -14,13 +16,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "q":
 			return m, tea.Quit
 		case "enter":
-			m = m.handleEnter()
+			return m.handleEnter()
 		case "right":
-			m = m.handleRight()
+			return m.handleRight()
 		case "up", "down":
-			m = m.handleUpDown(msg.String())
+			return m.handleUpDown(msg.String())
 		}
-
 	case tea.WindowSizeMsg:
 		m.windowWidth = msg.Width
 		m.windowHeight = msg.Height
@@ -29,37 +30,33 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	m.viewport, cmd = m.viewport.Update(msg)
-	cmds = append(cmds, cmd)
-
-	m.textInput, cmd = m.textInput.Update(msg)
-	cmds = append(cmds, cmd)
+	cmds := append([]tea.Cmd{cmd}, m.updateTextInput(msg)...)
 
 	return m, tea.Batch(cmds...)
 }
 
-func (m Model) handleEnter() Model {
-	if m.state == stateIntro {
+func (m Model) handleEnter() (tea.Model, tea.Cmd) {
+	switch m.state {
+	case stateIntro:
 		m.state = stateContent
 		m.updateContent()
-	} else if m.state == stateChallenge {
-		currentTopic := &m.lessons[m.currentLesson].Topics[m.currentTopic]
-		if currentTopic.ChallengeFunc != nil {
-			if currentTopic.ChallengeFunc(&m) {
-				m.challengeMsg = "Correct! Press right arrow to continue."
-				currentTopic.Completed = true
-				m.updateProgress()
-			} else {
-				m.challengeMsg = "Try again."
-			}
+	case stateChallenge:
+		topic := &m.lessons[m.currentLesson].Topics[m.currentTopic]
+		if topic.ChallengeFunc != nil && topic.ChallengeFunc(&m) {
+			m.challengeMsg = "Correct! Press right arrow to continue."
+			topic.Completed = true
+			m.updateProgress()
+		} else {
+			m.challengeMsg = "Try again."
 		}
 	}
-	return m
+	return m, nil
 }
 
-func (m Model) handleRight() Model {
+func (m Model) handleRight() (tea.Model, tea.Cmd) {
 	if m.state == stateContent {
-		currentTopic := &m.lessons[m.currentLesson].Topics[m.currentTopic]
-		if currentTopic.Challenge != "" && currentTopic.ChallengeFunc != nil {
+		topic := &m.lessons[m.currentLesson].Topics[m.currentTopic]
+		if topic.Challenge != "" && !topic.Completed {
 			m.state = stateChallenge
 			m.textInput.SetValue("")
 			m.challengeMsg = ""
@@ -69,10 +66,10 @@ func (m Model) handleRight() Model {
 	} else if m.state == stateChallenge && m.lessons[m.currentLesson].Topics[m.currentTopic].Completed {
 		m.moveToNextTopic()
 	}
-	return m
+	return m, nil
 }
 
-func (m Model) handleUpDown(key string) Model {
+func (m Model) handleUpDown(key string) (tea.Model, tea.Cmd) {
 	if m.state == stateContent {
 		if key == "up" {
 			m.viewport.LineUp(1)
@@ -80,38 +77,41 @@ func (m Model) handleUpDown(key string) Model {
 			m.viewport.LineDown(1)
 		}
 	}
-	return m
+	return m, nil
 }
 
 func (m *Model) moveToNextTopic() {
-    currentLesson := &m.lessons[m.currentLesson]
-    currentLesson.Topics[m.currentTopic].Completed = true
-    
-    // Update progress after marking the topic as completed
-    m.updateProgress()
-
-    m.currentTopic++
-    if m.currentTopic >= len(currentLesson.Topics) {
-        m.moveToNextLesson()
-    } else {
-        m.state = stateContent
-        m.updateContent()
-    }
-    m.challengeMsg = ""
+	m.currentTopic++
+	if m.currentTopic >= len(m.lessons[m.currentLesson].Topics) {
+		m.currentLesson++
+		m.currentTopic = 0
+		if m.currentLesson >= len(m.lessons) {
+			m.currentLesson = 0
+			m.state = stateIntro
+		} else {
+			m.state = stateContent
+		}
+	} else {
+		m.state = stateContent
+	}
+	m.updateContent()
+	m.updateProgress()
 }
 
+func (m Model) updateTextInput(msg tea.Msg) []tea.Cmd {
+	var cmds []tea.Cmd
+	var cmd tea.Cmd
+	m.textInput, cmd = m.textInput.Update(msg)
+	cmds = append(cmds, cmd)
+	return cmds
+}
 
-func (m *Model) moveToNextLesson() {
-	m.currentLesson++
-	if m.currentLesson >= len(m.lessons) {
-		m.currentLesson = len(m.lessons) - 1
-		m.currentTopic = len(m.lessons[m.currentLesson].Topics) - 1
-		m.state = stateContent
-		m.updateContent()
-		m.challengeMsg = "Congratulations! You've completed all lessons."
-	} else {
-		m.currentTopic = 0
-		m.state = stateContent
-		m.updateContent()
+// Additional helper function to generate ASCII art
+func generateASCIIArt() string {
+	cmd := exec.Command("bash", "-c", "figlet -f roman -t -c Digital Security | lolcat")
+	asciiArt, err := cmd.Output()
+	if err != nil {
+		return "Digital Security Literacy CLI\n"
 	}
+	return string(asciiArt)
 }

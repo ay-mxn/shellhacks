@@ -1,23 +1,32 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
-	"github.com/ay-mxn/shellhacks/internal"  // Import your internal package here
 
+	"github.com/ay-mxn/shellhacks/internal"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 func main() {
+	// Setup logging
 	f, err := tea.LogToFile("debug.log", "debug")
 	if err != nil {
-		log.Fatal(err)
+		fmt.Printf("Failed to create log file: %v\n", err)
+		os.Exit(1)
 	}
 	defer f.Close()
 
-	p := tea.NewProgram(internal.NewModel(), tea.WithAltScreen())  // Use internal.NewModel()
-	if err := p.Start(); err != nil {
-		log.Printf("There's been an error: %v", err)
+	// Create and start the Bubble Tea program
+	p := tea.NewProgram(
+		internal.NewModel(),
+		tea.WithAltScreen(),
+		tea.WithMouseCellMotion(), // Enable mouse support for better interactivity
+	)
+
+	if _, err := p.Run(); err != nil {
+		log.Printf("Error running program: %v", err)
 		os.Exit(1)
 	}
 }
