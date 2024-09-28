@@ -75,6 +75,8 @@ func getChallengeFunc(challengeType string) func(*Model) bool {
 		return passwordManagerChallenge
 	case "reconPhish":
 		return reconPhishChallenge
+	case "phishingAwareness":
+		return phishingAwarenessChallenge
 	case "multipleChoice":
 		return multipleChoiceChallenge
 	case "freeResponse":
