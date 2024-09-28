@@ -1,6 +1,8 @@
 package internal
 
 import (
+	"time"
+
 	"github.com/charmbracelet/bubbles/progress"
 	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbles/viewport"
@@ -10,6 +12,7 @@ import (
 const (
 	maxWidth  = 100
 	maxHeight = 30
+	padding   = 2
 )
 
 type Model struct {
@@ -25,6 +28,7 @@ type Model struct {
 	content       string
 	windowWidth   int
 	windowHeight  int
+	targetPercent float64
 }
 
 const (
@@ -41,19 +45,19 @@ func NewModel() Model {
 	ti.Placeholder = "Type here..."
 	ti.Focus()
 
-	progressBar := progress.New(
+	prog := progress.New(
 		progress.WithDefaultGradient(),
-		progress.WithWidth(80),
-		progress.WithoutPercentage(),
+		progress.WithWidth(maxWidth-padding*2),
 	)
 
 	m := Model{
 		state:         stateIntro,
 		lessons:       lessons,
 		styles:        styles,
-		progress:      progressBar,
+		progress:      prog,
 		textInput:     ti,
 		viewport:      viewport.New(maxWidth, maxHeight-6),
+		targetPercent: 0,
 	}
 
 	m.updateProgress()
@@ -65,7 +69,10 @@ func NewModel() Model {
 }
 
 func (m Model) Init() tea.Cmd {
-	return textinput.Blink
+	return tea.Batch(
+		textinput.Blink,
+		tickCmd(),
+	)
 }
 
 func (m *Model) updateContent() {
@@ -83,11 +90,32 @@ func (m *Model) updateViewportSize() {
 	m.viewport.Width = width - 4
 	m.viewport.Height = height - 10
 	m.textInput.Width = m.viewport.Width
+	m.progress.Width = width - padding*2
 }
 
 func (m *Model) setPhishingEmailContent() {
-	// Set the viewport content for the phishing challenge
 	m.viewport.SetContent(phishingEmail)
+}
+
+func (m *Model) updateProgress() {
+	m.targetPercent = m.calculateProgress()
+}
+
+func (m *Model) calculateProgress() float64 {
+	totalTopics := 0
+	completedTopics := 0
+	for _, lesson := range m.lessons {
+		totalTopics += len(lesson.Topics)
+		for _, topic := range lesson.Topics {
+			if topic.Completed {
+				completedTopics++
+			}
+		}
+	}
+	if totalTopics == 0 {
+		return 0
+	}
+	return float64(completedTopics) / float64(totalTopics)
 }
 
 func min(a, b int) int {
@@ -96,3 +124,12 @@ func min(a, b int) int {
 	}
 	return b
 }
+
+type tickMsg time.Time
+
+func tickCmd() tea.Cmd {
+	return tea.Tick(time.Second/30, func(t time.Time) tea.Msg {
+		return tickMsg(t)
+	})
+}
+

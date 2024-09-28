@@ -3,10 +3,10 @@ package internal
 import (
 	"os/exec"
 
+	"github.com/charmbracelet/bubbles/progress"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-// Update handles all the application logic and state updates
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
@@ -27,7 +27,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.windowWidth = msg.Width
 		m.windowHeight = msg.Height
 		m.updateViewportSize()
-		m.progress.Width = min(m.windowWidth, maxWidth) - 4
+	case tickMsg:
+		if m.progress.Percent() < m.targetPercent {
+			cmd := m.progress.IncrPercent(0.01)
+			return m, tea.Batch(tickCmd(), cmd)
+		}
+		return m, tickCmd()
+	case progress.FrameMsg:
+		progressModel, cmd := m.progress.Update(msg)
+		m.progress = progressModel.(progress.Model)
+		return m, cmd
 	}
 
 	if m.state == stateChallenge {
@@ -112,7 +121,6 @@ func (m Model) focusTextInput() tea.Msg {
 	return nil
 }
 
-// Additional helper function to generate ASCII art
 func generateASCIIArt() string {
 	cmd := exec.Command("bash", "-c", "figlet -f roman -t -c Digital Security | lolcat")
 	asciiArt, err := cmd.Output()

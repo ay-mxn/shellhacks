@@ -15,10 +15,9 @@ func (m Model) View() string {
 	}
 
 	progress := s.ProgressBar.Render(m.progress.View())
-	title := s.Title.Render(fmt.Sprintf("%s - %s (Progress: %.0f%%)", 
-		m.lessons[m.currentLesson].Title, 
-		m.lessons[m.currentLesson].Topics[m.currentTopic].Title,
-		m.progress.Percent()*100))
+	title := s.Title.Render(fmt.Sprintf("%s - %s",
+		m.lessons[m.currentLesson].Title,
+		m.lessons[m.currentLesson].Topics[m.currentTopic].Title))
 	header := lipgloss.JoinVertical(lipgloss.Left, title, progress)
 
 	var content string
