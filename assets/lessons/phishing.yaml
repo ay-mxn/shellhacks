@@ -15,8 +15,7 @@
 
                 Thank you for your prompt attention to this matter.\n
 
-                Sincerely,\n
-                PayPal Security Team
+                Sincerely,\nPayPal Security Team
       "
       challenge: "Is the email a phishing scam or legitmate?"
       challengeType: reconPhish
