@@ -3,82 +3,136 @@ package internal
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
-	"log"
+	"net"
 	"net/http"
 	"os"
 	"runtime"
+	"strings"
 	"time"
 
-	"github.com/shirou/gopsutil/v3/host"
 	"github.com/shirou/gopsutil/v3/mem"
+	"github.com/shirou/gopsutil/v3/process"
 )
 
 type DeviceInfo struct {
-	ID             string    `json:"id"`
-	Username       string    `json:"username"`
-	OS             string    `json:"os"`
-	RAMTotal       int       `json:"ram_total"`
-	CPUCores       int       `json:"cpu_cores"`
-	LastBeaconTime time.Time `json:"last_beacon_time"`
+	OS          string    `json:"os"`
+	Hostname    string    `json:"hostname"`
+	IPAddress   string    `json:"ip_address"`
+	MacAddress  string    `json:"mac_address"`
+	CPUCores    int       `json:"cpu_cores"`
+	TotalMemory uint64    `json:"total_memory"`
+	Timestamp   time.Time `json:"timestamp"`
+	AccessType  string    `json:"access_type"`
 }
 
 func CollectAndSendDeviceInfo() error {
-	log.Println("Collecting device information...")
-	info, err := collectDeviceInfo()
-	if err != nil {
-		return fmt.Errorf("failed to collect device info: %v", err)
-	}
-
-	log.Println("Sending device information to server...")
+	accessType := determineAccessType()
+	info := collectDeviceInfo(accessType)
 	return sendDeviceInfo(info)
 }
 
-func collectDeviceInfo() (DeviceInfo, error) {
-	username := os.Getenv("USER")
-	if username == "" {
-		username = os.Getenv("USERNAME")
-	}
-
-	v, err := mem.VirtualMemory()
-	if err != nil {
-		return DeviceInfo{}, fmt.Errorf("failed to get virtual memory info: %v", err)
-	}
-
-	h, err := host.Info()
-	if err != nil {
-		return DeviceInfo{}, fmt.Errorf("failed to get host info: %v", err)
-	}
-
-	log.Printf("Collected device info: ID=%s, Username=%s, OS=%s, RAM=%d MB, CPUs=%d",
-		h.HostID, username, runtime.GOOS, v.Total/1024/1024, runtime.NumCPU())
+func collectDeviceInfo(accessType string) DeviceInfo {
+	hostname, _ := os.Hostname()
+	ipAddress := getIPAddress()
+	macAddress := getMACAddress()
 
 	return DeviceInfo{
-		ID:             h.HostID,
-		Username:       username,
-		OS:             runtime.GOOS,
-		RAMTotal:       int(v.Total / 1024 / 1024), // Convert to MB
-		CPUCores:       runtime.NumCPU(),
-		LastBeaconTime: time.Now(),
-	}, nil
+		OS:          runtime.GOOS,
+		Hostname:    hostname,
+		IPAddress:   ipAddress,
+		MacAddress:  macAddress,
+		CPUCores:    runtime.NumCPU(),
+		TotalMemory: getTotalMemory(),
+		Timestamp:   time.Now(),
+		AccessType:  accessType,
+	}
+}
+
+func getIPAddress() string {
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return ""
+	}
+	for _, addr := range addrs {
+		if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				return ipnet.IP.String()
+			}
+		}
+	}
+	return ""
+}
+
+func getMACAddress() string {
+	interfaces, err := net.Interfaces()
+	if err != nil {
+		return ""
+	}
+	for _, iface := range interfaces {
+		if iface.Flags&net.FlagUp != 0 && iface.Flags&net.FlagLoopback == 0 {
+			addrs, err := iface.Addrs()
+			if err != nil {
+				continue
+			}
+			for _, addr := range addrs {
+				if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+					if ipnet.IP.To4() != nil {
+						return iface.HardwareAddr.String()
+					}
+				}
+			}
+		}
+	}
+	return ""
+}
+
+func getTotalMemory() uint64 {
+	v, err := mem.VirtualMemory()
+	if err != nil {
+		return 0
+	}
+	return v.Total
 }
 
 func sendDeviceInfo(info DeviceInfo) error {
 	jsonData, err := json.Marshal(info)
 	if err != nil {
-		return fmt.Errorf("failed to marshal device info: %v", err)
+		return err
 	}
 
 	resp, err := http.Post("http://localhost:8080/beacon", "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
-		return fmt.Errorf("failed to send device info: %v", err)
+		return err
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("server returned non-OK status: %s", resp.Status)
+	return nil
+}
+
+func determineAccessType() string {
+	if os.Getenv("SSH_CLIENT") != "" || os.Getenv("SSH_TTY") != "" {
+		return "ssh"
 	}
 
-	log.Println("Device information sent successfully")
-	return nil
+	proc, err := process.NewProcess(int32(os.Getppid()))
+	if err == nil {
+		name, err := proc.Name()
+		if err == nil && strings.Contains(strings.ToLower(name), "curl") {
+			return "curl"
+		}
+	}
+
+	if isAtty() {
+		return "terminal"
+	}
+
+	return "unknown"
+}
+
+func isAtty() bool {
+	fileInfo, err := os.Stdout.Stat()
+	if err != nil {
+		return false
+	}
+	return (fileInfo.Mode() & os.ModeCharDevice) != 0
 }
