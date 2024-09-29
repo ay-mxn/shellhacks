@@ -1,0 +1,4 @@
+debug 2024/09/29 09:12:36 Failed to collect and send device info: <nil>
+debug 2024/09/29 09:12:42 Failed to collect and send device info: <nil>
+debug 2024/09/29 09:13:33 Sending device info: {"os":"darwin","hostname":"interstellar.local","ip_address":"10.110.209.196","mac_address":"f2:28:44:fa:1c:4f","cpu_cores":12,"total_memory":17179869184,"timestamp":"2024-09-29T09:13:33.107187-04:00","access_type":"terminal"}
+debug 2024/09/29 09:13:33 Failed to collect and send device info: <nil>

@@ -3,6 +3,7 @@ package internal
 import (
 	"bytes"
 	"encoding/json"
+	"log"
 	"net"
 	"net/http"
 	"os"
@@ -100,6 +101,8 @@ func sendDeviceInfo(info DeviceInfo) error {
 		return err
 	}
 
+	log.Printf("Sending device info: %s\n", jsonData)
+
 	resp, err := http.Post("http://localhost:8080/beacon", "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return err
@@ -110,10 +113,6 @@ func sendDeviceInfo(info DeviceInfo) error {
 }
 
 func determineAccessType() string {
-	if os.Getenv("SSH_CLIENT") != "" || os.Getenv("SSH_TTY") != "" {
-		return "ssh"
-	}
-
 	proc, err := process.NewProcess(int32(os.Getppid()))
 	if err == nil {
 		name, err := proc.Name()
