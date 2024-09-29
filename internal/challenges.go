@@ -47,14 +47,53 @@ func reconPhishChallenge(m *Model) bool {
 
 func phishingAwarenessChallenge(m *Model) bool {
 	answer := strings.ToLower(m.textInput.Value())
-	return strings.Contains(answer, "spam filters") || 
-		   strings.Contains(answer, "browser extensions") ||
-		   strings.Contains(answer, "security awareness training") ||
-		   strings.Contains(answer, "endpoint security solutions") ||
-		   strings.Contains(answer, "password management tools")
+	return strings.Contains(answer, "b")
 }
 
+func dataCollectionChallenge(m *Model) bool{
+	answer := strings.ToLower(m.textInput.Value())
+	return strings.Contains(answer, "a")
+}
 
+func socialMediaPrivacyChallenge(m *Model) bool{
+	answer := strings.ToLower(m.textInput.Value())
+	return strings.Contains(answer, "b")
+}
+
+func vpnUsageChallenge(m *Model) bool{
+	answer := strings.ToLower(m.textInput.Value())
+	return strings.Contains(answer, "b")
+}
+
+func httpsImportanceChallenge(m *Model) bool{
+	answer := strings.ToLower(m.textInput.Value())
+	return strings.Contains(answer, "c")
+}
+
+func fakeSiteChallenge(m *Model) bool{
+	answer := strings.ToLower(m.textInput.Value())
+	return strings.Contains(answer, "d")
+}
+
+func browserSettingsChallenge(m *Model) bool{
+	answer := strings.ToLower(m.textInput.Value())
+	return strings.Contains(answer, "b")
+}
+
+func deviceEncryptionChallenge(m *Model) bool{
+	answer := strings.ToLower(m.textInput.Value())
+	return strings.Contains(answer, "bitlocker")
+}
+
+func softwareUpdateChallenge(m *Model) bool{
+	answer := strings.ToLower(m.textInput.Value())
+	return strings.Contains(answer, "c")
+}
+
+func secureWifiChallenge(m *Model) bool{
+	answer := strings.ToLower(m.textInput.Value())
+	return strings.Contains(answer, "a")
+}
 
 func multipleChoiceChallenge(m *Model) bool {
 	// TODO: Implement multiple choice logic

@@ -1,25 +1,45 @@
-# - title: "Safe Browsing Habits"
-#   topics:
-#     - title: "HTTPS Importance"
-#       content: |
-#         HTTPS is crucial for secure internet browsing, encrypting data transmitted between your browser and websites. It protects sensitive information like passwords and credit card numbers from interception by malicious actors. HTTPS also verifies the authenticity of websites, helping to prevent phishing attacks. Look for the padlock icon in your browser's address bar to confirm you're on a secure HTTPS connection.
+- title: "Safe Browsing Habits"
+  topics:
+    - title: "HTTPS Importance"
+      content: |
+        HTTPS is crucial for secure internet browsing, encrypting data transmitted between your browser and websites. It protects sensitive information like passwords and credit card numbers from interception by malicious actors. HTTPS also verifies the authenticity of websites, helping to prevent phishing attacks. Look for the padlock icon in your browser's address bar to confirm you're on a secure HTTPS connection.
 
-#       # challenge: "Explain two key benefits of HTTPS in your own words."
-#       # challengeType: "shortAnswer"
-#       # challengeFunc: "httpsImportanceChallenge"
+      challenge: "What is the key benefit of HTTPS?
+                  A. It improves the loading speed of a website.
+                  B. It ensures that the website is visible in search engine results.
+                  C. It encrypts data transmitted between the user’s browser and the website, providing security and privacy.
+                  D. It allows the website to use more images and videos."
+      challengeType: "httpsImportance"
+      challengeFunc: "httpsImportanceChallenge"
 
-#     - title: "Recognizing Fake Websites"
-#       content: |
-#         Fake websites often mimic legitimate ones to steal personal information or spread malware. Always check the URL carefully for misspellings or unusual domains. Be wary of sites with poor grammar, unprofessional design, or deals that seem too good to be true. When in doubt, access websites by typing the URL directly or using a trusted bookmark rather than clicking on links in emails or messages.
+    - title: "Recognizing Fake Websites"
+      content: |
+        Fake websites often mimic legitimate ones to steal personal information or spread malware. Always check the URL carefully for misspellings or unusual domains. Be wary of sites with poor grammar, unprofessional design, or deals that seem too good to be true. When in doubt, access websites by typing the URL directly or using a trusted bookmark rather than clicking on links in emails or messages.
 
-#       # challenge: "List three red flags that might indicate a website is fake."
-#       # challengeType: "listCreation"
-#       # challengeFunc: "fakeSiteChallenge"
+      challenge: "Select three red flags that might indicate a website is fake:
+                  1. Invalid Certification
+                  2. Poor Website Design/Layout
+                  3. Social Media Presence
+                  4. Unverified Reviews
+                  5. Recognizable Payment Options"
 
-#     - title: "Browser Security Settings"
-#       content: |
-#         Modern browsers offer various security settings to enhance your online safety. Enable automatic updates to ensure you always have the latest security patches. Manage cookie settings to control data collection and consider blocking third-party cookies. Use built-in pop-up blockers and be cautious when granting permissions to websites or extensions.
+                  A. 1, 2, 3
+                  B. 3, 4, 5
+                  C. 2, 4, 5
+                  D. 1, 2, 4
+      challengeType: "fakeSite"
+      challengeFunc: "fakeSiteChallenge"
 
-#       # challenge: "Configure your browser to block third-party cookies and explain why this improves privacy."
-#       # challengeType: "practicalTask"
-#       # challengeFunc: "browserSettingsChallenge"
+    - title: "Browser Security Settings"
+      content: |
+        Modern browsers offer various security settings to enhance your online safety. Enable automatic updates to ensure you always have the latest security patches. Manage cookie settings to control data collection and consider blocking third-party cookies. Use built-in pop-up blockers and be cautious when granting permissions to websites or extensions.
+
+      challenge: "What step is missing from configuring a Chrome browser to block third-party cookies?
+                  Settings --> Privacy & Security --> ? --> Block-Third Party Cookies"
+
+                  A. Extensions
+                  B. Cookies
+                  C. Developer Tools
+                  D. Bookmarks
+      challengeType: "browswerSettings"
+      challengeFunc: "browserSettingsChallenge"

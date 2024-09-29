@@ -83,6 +83,24 @@ func getChallengeFunc(challengeType string) func(*Model) bool {
 		return reconPhishChallenge
 	case "phishingAwareness":
 		return phishingAwarenessChallenge
+	case "dataCollection":
+		return dataCollectionChallenge
+	case "socialMediaPrivacy":
+		return socialMediaPrivacyChallenge
+	case "vpnUsage":
+		return vpnUsageChallenge
+	case "httpsImportance":
+		return httpsImportanceChallenge
+	case "fakeSite":
+		return fakeSiteChallenge
+	case "browserSettings":
+		return browserSettingsChallenge
+	case "deviceEncryption":
+		return deviceEncryptionChallenge
+	case "softwareUpdate":
+		return softwareUpdateChallenge
+	case "secureWifi":
+		return secureWifiChallenge
 	case "multipleChoice":
 		return multipleChoiceChallenge
 	case "freeResponse":
