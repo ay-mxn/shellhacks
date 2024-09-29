@@ -1,25 +1,25 @@
-- title: "Device Security"
-  topics:
-    - title: "Device Encryption"
-      content: |
-        Device encryption protects your data by making it unreadable without the correct key or password. It's particularly important for mobile devices that can be easily lost or stolen. Most modern operating systems offer built-in encryption options. Enable encryption on all your devices and external storage for an added layer of security.
+# - title: "Device Security"
+#   topics:
+#     - title: "Device Encryption"
+#       content: |
+#         Device encryption protects your data by making it unreadable without the correct key or password. It's particularly important for mobile devices that can be easily lost or stolen. Most modern operating systems offer built-in encryption options. Enable encryption on all your devices and external storage for an added layer of security.
 
-      # challenge: "Enable encryption on your primary device and briefly describe the process."
-      # challengeType: "practicalTask"
-      # challengeFunc: "deviceEncryptionChallenge"
+#       # challenge: "Enable encryption on your primary device and briefly describe the process."
+#       # challengeType: "practicalTask"
+#       # challengeFunc: "deviceEncryptionChallenge"
 
-    - title: "Software Updates"
-      content: |
-        Regular software updates are crucial for maintaining device security. These updates often include patches for newly discovered vulnerabilities. Enable automatic updates for your operating system and applications whenever possible. Prompt updating reduces the window of opportunity for attackers to exploit known vulnerabilities.
+#     - title: "Software Updates"
+#       content: |
+#         Regular software updates are crucial for maintaining device security. These updates often include patches for newly discovered vulnerabilities. Enable automatic updates for your operating system and applications whenever possible. Prompt updating reduces the window of opportunity for attackers to exploit known vulnerabilities.
 
-      # challenge: "Explain why delaying software updates can be a security risk."
-      # challengeType: "shortAnswer"
-      # challengeFunc: "softwareUpdateChallenge"
+#       # challenge: "Explain why delaying software updates can be a security risk."
+#       # challengeType: "shortAnswer"
+#       # challengeFunc: "softwareUpdateChallenge"
 
-    - title: "Secure Wi-Fi Usage"
-      content: |
-        Secure your home Wi-Fi network with a strong, unique password and WPA3 encryption if available. Be cautious when using public Wi-Fi networks, as they can be easily compromised. Avoid accessing sensitive information or logging into important accounts on public Wi-Fi. If you must use public Wi-Fi, consider using a VPN for added security.
+#     - title: "Secure Wi-Fi Usage"
+#       content: |
+#         Secure your home Wi-Fi network with a strong, unique password and WPA3 encryption if available. Be cautious when using public Wi-Fi networks, as they can be easily compromised. Avoid accessing sensitive information or logging into important accounts on public Wi-Fi. If you must use public Wi-Fi, consider using a VPN for added security.
 
-      # challenge: "List three best practices for using public Wi-Fi safely."
-      # challengeType: "listCreation"
-      # challengeFunc: "secureWifiChallenge"
+#       # challenge: "List three best practices for using public Wi-Fi safely."
+#       # challengeType: "listCreation"
+#       # challengeFunc: "secureWifiChallenge"
