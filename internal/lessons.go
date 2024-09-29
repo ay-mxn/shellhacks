@@ -23,6 +23,11 @@ type Topic struct {
 	Challenge     string `yaml:"challenge"`
 	ChallengeType string `yaml:"challengeType"`
 	ChallengeFunc func(*Model) bool `yaml:"-"`
+	a			  string `yaml:"a"`
+	b			  string `yaml:"b"`
+	c			  string `yaml:"c"`
+	d			  string `yaml:"d"`
+	e			  string `yaml:"e"`
 	Completed     bool
 }
 

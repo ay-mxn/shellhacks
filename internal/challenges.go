@@ -35,11 +35,7 @@ func passwordStrengthChallenge(m *Model) bool {
 
 func passwordManagerChallenge(m *Model) bool {
 	answer := strings.ToLower(m.textInput.Value())
-	return strings.Contains(answer, "auto-fill") || 
-		   strings.Contains(answer, "storing passwords") ||
-		   strings.Contains(answer, "encryption") ||
-		   strings.Contains(answer, "sync") ||
-		   strings.Contains(answer, "alerts")
+	return strings.Contains(answer, "c")
 }
 
 func reconPhishChallenge(m *Model) bool {
