@@ -29,12 +29,14 @@ type Model struct {
 	windowWidth   int
 	windowHeight  int
 	targetPercent float64
+	allCompleted  bool  // New field to track completion of all lessons
 }
 
 const (
 	stateIntro = iota
 	stateContent
 	stateChallenge
+	stateAllCompleted  // New state for when all lessons are completed
 )
 
 func NewModel() Model {

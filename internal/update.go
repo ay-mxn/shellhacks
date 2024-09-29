@@ -16,6 +16,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "q":
 			return m, tea.Quit
 		case "enter":
+			if m.state == stateAllCompleted {
+				return m, tea.Quit
+			}
+
 			return m.handleEnter()
 		case "right":
 			return m.handleRight()
@@ -42,6 +46,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		progressModel, cmd := m.progress.Update(msg)
 		m.progress = progressModel.(progress.Model)
 		return m, cmd
+	}
+
+	if m.targetPercent >= 1.0 && !m.allCompleted {
+		m.allCompleted = true
+		m.state = stateAllCompleted
 	}
 
 	if m.state == stateChallenge {

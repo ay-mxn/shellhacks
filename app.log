@@ -5,3 +5,6 @@ debug 2024/09/29 09:12:43 main.go:44: Failed to collect and send device info: Po
 debug 2024/09/29 09:13:33 main.go:37: Starting application...
 debug 2024/09/29 09:13:34 device_info.go:104: Sending device info: {"os":"darwin","hostname":"interstellar.local","ip_address":"10.110.209.196","mac_address":"f2:28:44:fa:1c:4f","cpu_cores":12,"total_memory":17179869184,"timestamp":"2024-09-29T09:13:34.112049-04:00","access_type":"terminal"}
 debug 2024/09/29 09:13:34 main.go:44: Failed to collect and send device info: Post "http://localhost:8080/beacon": dial tcp [::1]:8080: connect: connection refused
+debug 2024/09/29 09:18:32 main.go:37: Starting application...
+debug 2024/09/29 09:18:33 device_info.go:104: Sending device info: {"os":"darwin","hostname":"interstellar.local","ip_address":"10.110.209.196","mac_address":"f2:28:44:fa:1c:4f","cpu_cores":12,"total_memory":17179869184,"timestamp":"2024-09-29T09:18:33.91586-04:00","access_type":"terminal"}
+debug 2024/09/29 09:18:33 main.go:44: Failed to collect and send device info: Post "http://localhost:8080/beacon": dial tcp [::1]:8080: connect: connection refused

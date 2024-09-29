@@ -13,6 +13,10 @@ func (m Model) View() string {
         return m.renderIntro()
     }
 
+		if m.state == stateAllCompleted {
+			return m.renderAllCompleted()
+		}
+
     progress := s.ProgressBar.Render(m.progress.View())
 
     var title string
@@ -92,6 +96,17 @@ func (m Model) renderFooter() string {
 		footerText = "← → to navigate between lessons • ↑↓ to scroll • Q to quit"
 	case stateChallenge:
 		footerText = "Enter to submit • ← to go back • Q to quit"
+	case stateAllCompleted:
+		footerText = "Press Enter to exit"
 	}
 	return m.styles.FooterText.Render(footerText)
+}
+
+func (m Model) renderAllCompleted() string {
+	message := m.styles.Intro.Render("Congratulations! You've completed all the lessons.\n\n" +
+		"And the biggest lesson is: don't run any binaries like this!\n\n" +
+		"Press Enter to exit.")
+	return lipgloss.Place(m.windowWidth, m.windowHeight,
+		lipgloss.Center, lipgloss.Center,
+		message)
 }
