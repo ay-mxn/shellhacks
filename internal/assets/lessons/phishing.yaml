@@ -18,7 +18,7 @@
                 Sincerely,
                 PayPal Security Team
       "
-      challenge: "Is the email a phishing scam or legitmate?"
+      challenge: "Is the email a phishing scam or legitmate? (yes / no)"
       challengeType: reconPhish
       challengeFunc: reconPhishChallenge
 
