@@ -53,10 +53,10 @@ func (m Model) View() string {
 }
 
 func (m Model) renderIntro() string {
-	intro := m.styles.Intro.Render("Welcome to the Digital Security Literacy CLI!\n\n" +
-		"Created by Room 641A\n\n" +
-		"Learn about online security through interactive lessons\n\n" +
-		"Press Enter to start your journey.")
+	intro := m.styles.Intro.Render("ShellHacked 2024 - a Digital Literacy Lesson\n\n" +
+		"Developed by Team 0x641a\n\n" +
+		"Learn about online security through interactive lessons!\n\n" +
+		"Press Enter to start :)")
 	return lipgloss.Place(m.windowWidth, m.windowHeight,
 		lipgloss.Center, lipgloss.Center,
 		intro)

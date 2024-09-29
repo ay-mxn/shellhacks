@@ -6,10 +6,10 @@
 
       challenge: |
         What is the key benefit of HTTPS?
-      A. It improves the loading speed of a website.
-      B. It ensures that the website is visible in search engine results.
-      C. It encrypts data transmitted between the user’s browser and the website, providing security and privacy.
-      D. It allows the website to use more images and videos.
+        A. It improves the loading speed of a website.
+        B. It ensures that the website is visible in search engine results.
+        C. It encrypts data transmitted between the user's browser and the website, providing security and privacy.
+        D. It allows the website to use more images and videos.
       challengeType: "httpsImportance"
       challengeFunc: "httpsImportanceChallenge"
 
@@ -21,33 +21,16 @@
 
       challenge: |
         Select three red flags that might indicate a website is fake:
-        
-      1. Invalid Certification
-      2. Poor Website Design/Layout
-      3. Social Media Presence
-      4. Unverified Reviews
-      5. Recognizable Payment Options
 
-      A. 1, 2, 3
-      B. 3, 4, 5
-      C. 2, 4, 5
-      D. 1, 2, 4
+        1. Invalid Certification
+        2. Poor Website Design/Layout
+        3. Social Media Presence
+        4. Unverified Reviews
+        5. Recognizable Payment Options
+
+        A. 1, 2, 3
+        B. 3, 4, 5
+        C. 2, 4, 5
+        D. 1, 2, 4
       challengeType: "fakeSite"
       challengeFunc: "fakeSiteChallenge"
-
-- title: "Browser Security Habits"
-  topics:
-    - title: "Browser Security Settings"
-      content: |
-        Modern browsers offer various security settings to enhance your online safety. Enable automatic updates to ensure you always have the latest security patches. Manage cookie settings to control data collection and consider blocking third-party cookies. Use built-in pop-up blockers and be cautious when granting permissions to websites or extensions.
-
-      challenge: |
-        What step is missing from configuring a Chrome browser to block third-party cookies?
-        Settings --> Privacy & Security --> ? --> Block-Third Party Cookies
-
-        A. Extensions
-        B. Cookies
-        C. Developer Tools
-        D. Bookmarks
-      challengeType: "browserSettings"
-      challengeFunc: "browserSettingsChallenge"

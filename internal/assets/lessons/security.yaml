@@ -18,7 +18,7 @@
         A. One week
         B. Until there are no more bugs reported
         C. Don't wait
-        D. Two Days"
+        D. Two days
       challengeType: "softwareUpdate"
       challengeFunc: "softwareUpdateChallenge"
 
