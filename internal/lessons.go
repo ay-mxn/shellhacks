@@ -1,12 +1,16 @@
 package internal
 
 import (
+	"embed"
 	"fmt"
-	"io/ioutil"
+	"io/fs"
 	"path/filepath"
 
 	"gopkg.in/yaml.v2"
 )
+
+//go:embed assets/lessons/*.yaml
+var lessonsFS embed.FS
 
 type Lesson struct {
 	Title  string  `yaml:"title"`
@@ -23,38 +27,35 @@ type Topic struct {
 }
 
 func loadLessons() []Lesson {
-	lessonsDir := "assets/lessons"
-	files, err := ioutil.ReadDir(lessonsDir)
-	if err != nil {
-		return []Lesson{}
-	}
-
 	var allLessons []Lesson
-	for _, file := range files {
-		if filepath.Ext(file.Name()) != ".yaml" && filepath.Ext(file.Name()) != ".yml" {
-			continue
+
+	err := fs.WalkDir(lessonsFS, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			fmt.Printf("Error walking directory: %v\n", err)
+			return err
 		}
 
-		filePath := filepath.Join(lessonsDir, file.Name())
-		yamlFile, err := ioutil.ReadFile(filePath)
+
+		if filepath.Ext(d.Name()) != ".yaml" && filepath.Ext(d.Name()) != ".yml" {
+			return nil
+		}
+
+		yamlFile, err := lessonsFS.ReadFile(path)
 		if err != nil {
-			fmt.Printf("Failed to read lesson file %s: %v\n", file.Name(), err)
-			continue
+			fmt.Printf("Failed to read lesson file %s: %v\n", path, err)
+			return nil
 		}
 
 		var lessons []Lesson
 		err = yaml.Unmarshal(yamlFile, &lessons)
 		if err != nil {
-			fmt.Printf("Failed to unmarshal lessons from %s: %v\n", file.Name(), err)
-			continue
+			fmt.Printf("Failed to unmarshal lessons from %s: %v\n", path, err)
+			return nil
 		}
 
 		for i := range lessons {
 			for j := range lessons[i].Topics {
-				topic := &lessons[i].Topics[j]
-
-				fmt.Printf("Challenge: %s, ChallengeType: %s\n", topic.Challenge, topic.ChallengeType)
-				
+				topic := &lessons[i].Topics[j]				
 				if topic.Challenge != "" && topic.ChallengeType != "" {
 					topic.ChallengeFunc = getChallengeFunc(topic.ChallengeType)
 				}
@@ -62,6 +63,11 @@ func loadLessons() []Lesson {
 		}
 
 		allLessons = append(allLessons, lessons...)
+		return nil
+	})
+
+	if err != nil {
+		fmt.Printf("Error walking through embedded files: %v\n", err)
 	}
 
 	return allLessons
@@ -71,7 +77,7 @@ func getChallengeFunc(challengeType string) func(*Model) bool {
 	switch challengeType {
 	case "passwordStrength":
 		return passwordStrengthChallenge
-	case "passwordManager": // Added case for passwordManager
+	case "passwordManager":
 		return passwordManagerChallenge
 	case "reconPhish":
 		return reconPhishChallenge
@@ -81,7 +87,6 @@ func getChallengeFunc(challengeType string) func(*Model) bool {
 		return multipleChoiceChallenge
 	case "freeResponse":
 		return freeResponseChallenge
-	
 	default:
 		return defaultChallenge
 	}

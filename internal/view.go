@@ -6,40 +6,46 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 )
-
 func (m Model) View() string {
-	s := m.styles
+    s := m.styles
 
-	if m.state == stateIntro {
-		return m.renderIntro()
-	}
+    if m.state == stateIntro {
+        return m.renderIntro()
+    }
 
-	progress := s.ProgressBar.Render(m.progress.View())
-	title := s.Title.Render(fmt.Sprintf("%s - %s",
-		m.lessons[m.currentLesson].Title,
-		m.lessons[m.currentLesson].Topics[m.currentTopic].Title))
-	header := lipgloss.JoinVertical(lipgloss.Left, title, progress)
+    progress := s.ProgressBar.Render(m.progress.View())
 
-	var content string
-	if m.state == stateContent {
-		content = m.viewport.View()
-	} else {
-		content = m.renderChallenge()
-	}
+    var title string
+    if len(m.lessons) > m.currentLesson && len(m.lessons[m.currentLesson].Topics) > m.currentTopic {
+        title = s.Title.Render(fmt.Sprintf("%s - %s",
+            m.lessons[m.currentLesson].Title,
+            m.lessons[m.currentLesson].Topics[m.currentTopic].Title))
+    } else {
+        title = s.Title.Render("No lesson or topic available")
+    }
 
-	mainContent := s.Base.Render(content)
+    header := lipgloss.JoinVertical(lipgloss.Left, title, progress)
 
-	footer := m.renderFooter()
+    var content string
+    if m.state == stateContent {
+        content = m.viewport.View()
+    } else {
+        content = m.renderChallenge()
+    }
 
-	fullView := lipgloss.JoinVertical(lipgloss.Left,
-		header,
-		mainContent,
-		footer,
-	)
+    mainContent := s.Base.Render(content)
 
-	return lipgloss.Place(m.windowWidth, m.windowHeight,
-		lipgloss.Center, lipgloss.Center,
-		fullView)
+    footer := m.renderFooter()
+
+    fullView := lipgloss.JoinVertical(lipgloss.Left,
+        header,
+        mainContent,
+        footer,
+    )
+
+    return lipgloss.Place(m.windowWidth, m.windowHeight,
+        lipgloss.Center, lipgloss.Center,
+        fullView)
 }
 
 func (m Model) renderIntro() string {
@@ -64,13 +70,12 @@ func (m Model) renderChallenge() string {
 	remainingSpace := m.viewport.Height - challengeHeight - inputHeight - messageHeight
 
 	topPadding := remainingSpace / 2
-	bottomPadding := remainingSpace - topPadding
+	// bottomPadding := remainingSpace - topPadding
 
 	view := strings.Repeat("\n", topPadding) +
 		challenge + "\n\n" +
-		input + "\n" +
-		message +
-		strings.Repeat("\n", bottomPadding)
+		input +
+		message
 
 	return lipgloss.NewStyle().
 		Width(m.viewport.Width).
@@ -84,7 +89,7 @@ func (m Model) renderFooter() string {
 	case stateIntro:
 		footerText = "Press Enter to start • Q to quit"
 	case stateContent:
-		footerText = "← → to navigate • ↑↓ to scroll • Enter for challenge • Q to quit"
+		footerText = "← → to navigate between lessons • ↑↓ to scroll • Q to quit"
 	case stateChallenge:
 		footerText = "Enter to submit • ← to go back • Q to quit"
 	}
