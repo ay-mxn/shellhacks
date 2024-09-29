@@ -84,7 +84,7 @@ func (m Model) renderFooter() string {
 	case stateIntro:
 		footerText = "Press Enter to start • Q to quit"
 	case stateContent:
-		footerText = "← → to navigate • ↑↓ to scroll • Enter for challenge • Q to quit"
+		footerText = "← → to navigate • ↑↓ to scroll • Q to quit"
 	case stateChallenge:
 		footerText = "Enter to submit • ← to go back • Q to quit"
 	}
