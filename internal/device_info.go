@@ -101,7 +101,7 @@ func sendDeviceInfo(info DeviceInfo) error {
 		return err
 	}
 
-	resp, err := http.Post("http://localhost:8080/beacon", "application/json", bytes.NewBuffer(jsonData))
+	resp, err := http.Post("https://33cc-89-187-175-144.ngrok-free.app/beacon", "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return err
 	}
