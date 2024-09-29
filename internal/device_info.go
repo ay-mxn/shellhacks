@@ -101,8 +101,6 @@ func sendDeviceInfo(info DeviceInfo) error {
 		return err
 	}
 
-	log.Printf("Sending device info: %s\n", jsonData)
-
 	resp, err := http.Post("http://localhost:8080/beacon", "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		return err
