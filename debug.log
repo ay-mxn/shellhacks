@@ -4,3 +4,25 @@ debug 2024/09/29 09:13:33 Sending device info: {"os":"darwin","hostname":"inters
 debug 2024/09/29 09:13:33 Failed to collect and send device info: <nil>
 debug 2024/09/29 09:18:32 Sending device info: {"os":"darwin","hostname":"interstellar.local","ip_address":"10.110.209.196","mac_address":"f2:28:44:fa:1c:4f","cpu_cores":12,"total_memory":17179869184,"timestamp":"2024-09-29T09:18:32.910821-04:00","access_type":"terminal"}
 debug 2024/09/29 09:18:32 Failed to collect and send device info: <nil>
+debug 2024/09/29 09:20:35 Sending device info: {"os":"darwin","hostname":"interstellar.local","ip_address":"10.110.209.196","mac_address":"f2:28:44:fa:1c:4f","cpu_cores":12,"total_memory":17179869184,"timestamp":"2024-09-29T09:20:35.719262-04:00","access_type":"terminal"}
+debug 2024/09/29 09:20:35 Failed to collect and send device info: <nil>
+debug 2024/09/29 09:22:04 Sending device info: {"os":"darwin","hostname":"interstellar.local","ip_address":"10.110.209.196","mac_address":"f2:28:44:fa:1c:4f","cpu_cores":12,"total_memory":17179869184,"timestamp":"2024-09-29T09:22:04.937962-04:00","access_type":"terminal"}
+debug 2024/09/29 09:22:04 Failed to collect and send device info: <nil>
+debug 2024/09/29 09:22:15 Sending device info: {"os":"darwin","hostname":"interstellar.local","ip_address":"10.110.209.196","mac_address":"f2:28:44:fa:1c:4f","cpu_cores":12,"total_memory":17179869184,"timestamp":"2024-09-29T09:22:15.509649-04:00","access_type":"terminal"}
+debug 2024/09/29 09:22:15 Failed to collect and send device info: <nil>
+debug 2024/09/29 09:22:26 Sending device info: {"os":"darwin","hostname":"interstellar.local","ip_address":"10.110.209.196","mac_address":"f2:28:44:fa:1c:4f","cpu_cores":12,"total_memory":17179869184,"timestamp":"2024-09-29T09:22:26.175359-04:00","access_type":"terminal"}
+debug 2024/09/29 09:22:26 Failed to collect and send device info: <nil>
+debug 2024/09/29 09:25:14 Sending device info: {"os":"darwin","hostname":"interstellar.local","ip_address":"10.110.209.196","mac_address":"f2:28:44:fa:1c:4f","cpu_cores":12,"total_memory":17179869184,"timestamp":"2024-09-29T09:25:14.92193-04:00","access_type":"terminal"}
+debug 2024/09/29 09:25:14 Failed to collect and send device info: <nil>
+debug 2024/09/29 09:25:58 Sending device info: {"os":"darwin","hostname":"interstellar.local","ip_address":"10.110.209.196","mac_address":"f2:28:44:fa:1c:4f","cpu_cores":12,"total_memory":17179869184,"timestamp":"2024-09-29T09:25:58.700687-04:00","access_type":"terminal"}
+debug 2024/09/29 09:25:58 Failed to collect and send device info: <nil>
+debug 2024/09/29 09:26:22 Sending device info: {"os":"darwin","hostname":"interstellar.local","ip_address":"10.110.209.196","mac_address":"f2:28:44:fa:1c:4f","cpu_cores":12,"total_memory":17179869184,"timestamp":"2024-09-29T09:26:22.125015-04:00","access_type":"terminal"}
+debug 2024/09/29 09:26:22 Failed to collect and send device info: <nil>
+debug 2024/09/29 09:27:08 Sending device info: {"os":"darwin","hostname":"interstellar.local","ip_address":"10.110.209.196","mac_address":"f2:28:44:fa:1c:4f","cpu_cores":12,"total_memory":17179869184,"timestamp":"2024-09-29T09:27:08.872501-04:00","access_type":"terminal"}
+debug 2024/09/29 09:27:08 Failed to collect and send device info: <nil>
+debug 2024/09/29 09:27:24 Sending device info: {"os":"darwin","hostname":"interstellar.local","ip_address":"10.110.209.196","mac_address":"f2:28:44:fa:1c:4f","cpu_cores":12,"total_memory":17179869184,"timestamp":"2024-09-29T09:27:24.608081-04:00","access_type":"terminal"}
+debug 2024/09/29 09:27:24 Failed to collect and send device info: <nil>
+debug 2024/09/29 09:27:52 Sending device info: {"os":"darwin","hostname":"interstellar.local","ip_address":"10.110.209.196","mac_address":"f2:28:44:fa:1c:4f","cpu_cores":12,"total_memory":17179869184,"timestamp":"2024-09-29T09:27:52.357864-04:00","access_type":"terminal"}
+debug 2024/09/29 09:27:52 Failed to collect and send device info: <nil>
+debug 2024/09/29 09:29:28 Sending device info: {"os":"darwin","hostname":"interstellar.local","ip_address":"10.110.209.196","mac_address":"f2:28:44:fa:1c:4f","cpu_cores":12,"total_memory":17179869184,"timestamp":"2024-09-29T09:29:28.162077-04:00","access_type":"terminal"}
+debug 2024/09/29 09:29:28 Failed to collect and send device info: <nil>

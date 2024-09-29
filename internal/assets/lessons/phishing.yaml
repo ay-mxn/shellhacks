@@ -26,10 +26,11 @@
   topics:
     - title: "Using Security Tools"
       content: "Enable spam filters and keep them updated. Use anti-phishing toolbars in your web browser and ensure your antivirus software is up to date."
-      challenge: "Select a security tool that can help protect against phishing:
-                  A. Firewalls
-                  B. Spam Filters
-                  C. Data Loss Prevention Tools
-                  D. Password Managers"
+      challenge: |
+        Select a security tool that can help protect against phishing:
+        A. Firewalls
+        B. Spam Filters
+        C. Data Loss Prevention Tools
+        D. Password Managers
       challengeType: phishingAwareness
       challengeFunc: phishingAwarenessChallenge

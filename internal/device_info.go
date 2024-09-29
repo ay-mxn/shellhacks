@@ -3,7 +3,6 @@ package internal
 import (
 	"bytes"
 	"encoding/json"
-	"log"
 	"net"
 	"net/http"
 	"os"

@@ -12,8 +12,9 @@
       content: |
         Regular software updates are crucial for maintaining device security. These updates often include patches for newly discovered vulnerabilities. Enable automatic updates for your operating system and applications whenever possible. Prompt updating reduces the window of opportunity for attackers to exploit known vulnerabilities.
 
-      challenge:
-        "How long should you wait to perform security updates to your personal device?
+      challenge: |
+        How long should you wait to perform security updates to your personal device?
+
         A. One week
         B. Until there are no more bugs reported
         C. Don't wait
@@ -21,14 +22,18 @@
       challengeType: "softwareUpdate"
       challengeFunc: "softwareUpdateChallenge"
 
+- title: "Wi-Fi Security"
+  topics:
     - title: "Secure Wi-Fi Usage"
       content: |
         Secure your home Wi-Fi network with a strong, unique password and WPA3 encryption if available. Be cautious when using public Wi-Fi networks, as they can be easily compromised. Avoid accessing sensitive information or logging into important accounts on public Wi-Fi. If you must use public Wi-Fi, consider using a VPN for added security.
 
-      challenge: "What IP addresses are commonly known to be insecure:
+      challenge: |
+        What IP addresses are commonly known to be insecure:
+
         A. Default Router IP Addresses
         B. Private IP Addresses
         C. Dedicated and Static IP Addresses
-        D. IP Addresses Behind NAT"
+        D. IP Addresses Behind NAT
       challengeType: "secureWifi"
       challengeFunc: "secureWifiChallenge"
