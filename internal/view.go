@@ -1,8 +1,12 @@
 package internal
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"strings"
+	"sync"
 
 	"github.com/charmbracelet/lipgloss"
 )
@@ -101,12 +105,77 @@ func (m Model) renderFooter() string {
 	}
 	return m.styles.FooterText.Render(footerText)
 }
+type SummaryResponse struct {
+	TotalHosts     int      `json:"total_hosts"`
+	TotalMemoryGB  int      `json:"total_memory_gb"`
+	UniqueIPCount  int      `json:"unique_ip_count"`
+	UniqueOSCount  int      `json:"unique_os_count"`
+	TotalCPUCores  int      `json:"total_cpu_cores"`
+	AccessTypes    []string `json:"access_types"`
+	OldestTimestamp string  `json:"oldest_timestamp"`
+	NewestTimestamp string  `json:"newest_timestamp"`
+}
+
+func (m Model) renderError(err error) string {
+	errorMessage := fmt.Sprintf("An error occurred: %v\n\nPress Enter to exit.", err)
+	return lipgloss.Place(m.windowWidth, m.windowHeight,
+		lipgloss.Center, lipgloss.Center,
+		m.styles.Base.Render(errorMessage))
+}
+
 
 func (m Model) renderAllCompleted() string {
+	summary, err := getSummaryOnce()
+	if err != nil {
+		return m.renderError(fmt.Errorf("failed to get summary: %v", err))
+	}
+
+	if summary == nil {
+		return m.renderError(fmt.Errorf("summary is nil"))
+	}
+
 	message := m.styles.Intro.Render("Congratulations! You've completed all the lessons.\n\n" +
-		"And the biggest lesson is: don't run any binaries like this!\n\n" +
-		"Press Enter to exit.")
+		"And the biggest lesson is:\ndon't run any binaries like this!\n\nRunning binaries you don't know the origin from\ncan give an attacker complete control over your computer.\n\n" +
+		fmt.Sprintf("Here's a summary of the data collected:\n%d computers, %d GB of memory, "+
+			"%d CPU cores, %d unique IPs.\n\n",
+			summary.TotalHosts, summary.TotalMemoryGB, summary.TotalCPUCores,
+			summary.UniqueIPCount) +
+		"Be safe online, and keep hacking.\n\n- Team 0x641a <3 \n\nPress Enter to exit.")
+
 	return lipgloss.Place(m.windowWidth, m.windowHeight,
 		lipgloss.Center, lipgloss.Center,
 		message)
+}
+var (
+	summaryOnce  sync.Once
+	summaryCached *SummaryResponse
+	summaryErr   error
+)
+
+func getSummaryOnce() (*SummaryResponse, error) {
+	summaryOnce.Do(func() {
+		summaryCached, summaryErr = fetchSummary()
+	})
+	return summaryCached, summaryErr
+}
+
+func fetchSummary() (*SummaryResponse, error) {
+	resp, err := http.Get("https://shellhacked.share.zrok.io/summary")
+	if err != nil {
+		return nil, fmt.Errorf("error making GET request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading response body: %v", err)
+	}
+
+	var summary SummaryResponse
+	err = json.Unmarshal(body, &summary)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshaling JSON: %v", err)
+	}
+
+	return &summary, nil
 }

